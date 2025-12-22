@@ -1,0 +1,265 @@
+<div class="admin-container">
+  <header class="admin-header">
+    <h1>Admin Dashboard</h1>
+    <div class="right-actions">
+      <button class="logout-button" (click)="adminLogout()">Logout</button>
+    </div>
+  </header>
+
+  <!-- Tabs -->
+  <div class="tabs">
+    <button
+      class="tab"
+      [class.active]="activeTab === 'laptops'"
+      (click)="setTab('laptops')"
+    >
+      Laptops
+    </button>
+    <button
+      class="tab"
+      [class.active]="activeTab === 'orders'"
+      (click)="setTab('orders')"
+    >
+      Orders
+    </button>
+  </div>
+
+  <!-- Laptops Tab Content -->
+  <ng-container *ngIf="activeTab === 'laptops'">
+    <div class="actions-row">
+      <button class="add-button" (click)="toggleAddForm()">
+        {{ showAddForm ? "Cancel" : "+ Add New Laptop" }}
+      </button>
+    </div>
+
+    <div *ngIf="showAddForm" class="add-form">
+      <h2>Add New Laptop</h2>
+      <form (ngSubmit)="addLaptop()">
+        <div class="form-row">
+          <div class="form-group">
+            <label for="brand">Brand *</label>
+            <input
+              type="text"
+              id="brand"
+              [(ngModel)]="newLaptop.Brand"
+              name="Brand"
+              required
+              placeholder="e.g., Apple"
+            />
+          </div>
+          <div class="form-group">
+            <label for="model">Model *</label>
+            <input
+              type="text"
+              id="model"
+              [(ngModel)]="newLaptop.Model"
+              name="Model"
+              required
+              placeholder="e.g., MacBook Air"
+            />
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="price">Price *</label>
+            <input
+              type="number"
+              id="price"
+              [(ngModel)]="newLaptop.price"
+              name="price"
+              required
+              min="0"
+              step="0.01"
+              placeholder="0.00"
+            />
+          </div>
+          <div class="form-group">
+            <label for="category">Category *</label>
+            <select
+              id="category"
+              [(ngModel)]="newLaptop.category"
+              name="category"
+              required
+            >
+              <option *ngFor="let cat of categories" [value]="cat">
+                {{ cat }}
+              </option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="spec">Spec *</label>
+          <input
+            type="text"
+            id="spec"
+            [(ngModel)]="newLaptop.Spec"
+            name="Spec"
+            required
+            placeholder="CPU / RAM / Storage / GPU"
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="description">Description</label>
+          <textarea
+            id="description"
+            [(ngModel)]="newLaptop.description"
+            name="description"
+            rows="3"
+            placeholder="Enter laptop description"
+          ></textarea>
+        </div>
+
+        <div class="form-group">
+          <label for="coverImage">Image URL</label>
+          <input
+            type="url"
+            id="coverImage"
+            [(ngModel)]="newLaptop.image_url"
+            name="image_url"
+            placeholder="https://example.com/laptop.jpg"
+          />
+        </div>
+
+        <div class="form-actions">
+          <button type="submit" class="submit-button">Add Laptop</button>
+          <button type="button" class="cancel-button" (click)="resetForm()">
+            Reset
+          </button>
+        </div>
+      </form>
+    </div>
+
+    <div class="books-list">
+      <h2>All Laptops ({{ laptops().length }})</h2>
+
+      <!-- Loading State -->
+      <div *ngIf="loading()" class="loading-message">
+        <p>Loading laptops from database...</p>
+      </div>
+
+      <!-- Error State -->
+      <div *ngIf="error()" class="error-message">
+        <p>{{ error() }}</p>
+        <button (click)="laptopService.fetchLaptops()">Retry</button>
+      </div>
+
+      <!-- Empty State -->
+      <div
+        *ngIf="!loading() && !error() && laptops().length === 0"
+        class="empty-message"
+      >
+        <p>No laptops found. Add your first laptop using the button above!</p>
+      </div>
+
+      <!-- Laptops Grid -->
+      <div *ngIf="!loading() && laptops().length > 0" class="books-grid">
+        <div *ngFor="let book of laptops()" class="book-card">
+          <div class="book-cover">
+            <img
+              *ngIf="book.image_url || book.coverImage"
+              [src]="book.image_url || book.coverImage"
+              [alt]="book.Brand + ' ' + book.Model"
+              class="cover-image"
+              (error)="$event.target.style.display = 'none'"
+            />
+            <div *ngIf="!book.image_url && !book.coverImage" class="no-cover">
+              No Image
+            </div>
+          </div>
+          <div class="book-info">
+            <h3>{{ book.Brand }} {{ book.Model }}</h3>
+            <p class="author">{{ book.Spec }}</p>
+            <p class="genre">{{ book.category }}</p>
+            <p class="price">${{ book.price.toFixed(2) }}</p>
+            <p *ngIf="book.description" class="description">
+              {{ book.description }}
+            </p>
+          </div>
+          <button class="delete-button" (click)="deleteLaptop(book)">
+            Delete
+          </button>
+        </div>
+      </div>
+    </div>
+  </ng-container>
+
+  <!-- Orders Tab Content -->
+  <ng-container *ngIf="activeTab === 'orders'">
+    <div class="orders-panel">
+      <h2>All Orders</h2>
+
+      <div *ngIf="ordersLoading()" class="loading-message">
+        <p>Loading orders...</p>
+      </div>
+
+      <div *ngIf="ordersError()" class="error-message">
+        <p>{{ ordersError() }}</p>
+        <button (click)="setTab('orders')">Retry</button>
+      </div>
+
+      <div
+        *ngIf="!ordersLoading() && !ordersError() && orders().length === 0"
+        class="empty-message"
+      >
+        <p>No orders found.</p>
+      </div>
+
+      <div *ngIf="!ordersLoading() && orders().length > 0" class="orders-list">
+        <div *ngFor="let order of orders()" class="order-card">
+          <div class="order-header">
+            <div class="order-header-left">
+              <div class="order-id">#{{ order._id }}</div>
+              <div class="order-date">
+                {{ order.createdAt | date : "medium" }}
+              </div>
+            </div>
+            <div class="order-header-right">
+              <div class="order-total">${{ order.totalPrice.toFixed(2) }}</div>
+            </div>
+          </div>
+
+          <div class="order-meta">
+            <div><strong>Name:</strong> {{ order.name }}</div>
+            <div><strong>Address:</strong> {{ order.shippingAddress }}</div>
+            <div *ngIf="order.orderNote">
+              <strong>Note:</strong> {{ order.orderNote }}
+            </div>
+          </div>
+
+          <div class="order-items">
+            <div class="order-item" *ngFor="let it of order.items">
+              <div class="item-title">{{ it.title }}</div>
+              <div class="item-qty">x{{ it.quantity }}</div>
+              <div class="item-price">
+                ${{ (it.price * it.quantity).toFixed(2) }}
+              </div>
+            </div>
+          </div>
+          <div class="order-status-row order-status-bottom">
+            <label for="status-{{ order._id }}"><strong>Status:</strong></label>
+            <select
+              id="status-{{ order._id }}"
+              class="status-select"
+              [class.pending]="(order.status || 'pending') === 'pending'"
+              [class.success]="order.status === 'success'"
+              [class.fail]="order.status === 'fail'"
+              [disabled]="savingOrderId() === order._id"
+              [ngModel]="order.status || 'pending'"
+              (ngModelChange)="onChangeStatus(order._id, $event)"
+            >
+              <option value="pending">pending</option>
+              <option value="success">success</option>
+              <option value="fail">fail</option>
+            </select>
+            <span *ngIf="savingOrderId() === order._id" class="saving-indicator"
+              >saving...</span
+            >
+          </div>
+        </div>
+      </div>
+    </div>
+  </ng-container>
+</div>

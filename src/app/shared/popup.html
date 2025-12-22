@@ -1,0 +1,91 @@
+<div
+  *ngIf="visible()"
+  class="fixed inset-0 z-50 flex items-center justify-center"
+>
+  <div
+    class="absolute inset-0 bg-black/70 backdrop-blur-sm"
+    (click)="close()"
+  ></div>
+
+  <div
+    class="relative bg-[#2A2520] border-2 rounded-xl w-11/12 max-w-md mx-auto p-8 shadow-2xl animate-bounce-in"
+    [ngClass]="{
+      'border-[#D4AF37]': type() === 'success' || type() === 'info',
+      'border-red-500': type() === 'error'
+    }"
+    (click)="$event.stopPropagation()"
+  >
+    <div class="text-center mb-6">
+      <div
+        class="w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4"
+        [ngClass]="{
+          'bg-green-500': type() === 'success',
+          'bg-red-600': type() === 'error',
+          'bg-blue-500': type() === 'info'
+        }"
+      >
+        <svg
+          class="w-12 h-12 text-white"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <ng-container [ngSwitch]="type()">
+            <g *ngSwitchCase="'success'">
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="3"
+                d="M5 13l4 4L19 7"
+              ></path>
+            </g>
+            <g *ngSwitchCase="'error'">
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="3"
+                d="M6 18L18 6M6 6l12 12"
+              ></path>
+            </g>
+            <g *ngSwitchDefault>
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="3"
+                d="M13 16h-1v-4h-1m1-4h.01M12 19a7 7 0 110-14 7 7 0 010 14z"
+              ></path>
+            </g>
+          </ng-container>
+        </svg>
+      </div>
+
+      <h2
+        class="text-2xl font-bold mb-2"
+        [ngClass]="{
+          'text-[#D4AF37]': type() !== 'error',
+          'text-red-400': type() === 'error'
+        }"
+      >
+        {{
+          type() === "success"
+            ? "Success"
+            : type() === "error"
+            ? "Action Required"
+            : "Notice"
+        }}
+      </h2>
+      <p class="text-[#CFC3B6] text-lg">{{ message() }}</p>
+    </div>
+
+    <button
+      (click)="close()"
+      class="w-full px-6 py-3 font-bold rounded-xl transition"
+      [ngClass]="{
+        'bg-[#D4AF37] text-black hover:bg-[#b7942f]': type() !== 'error',
+        'bg-red-600 text-white hover:bg-red-700': type() === 'error'
+      }"
+    >
+      Close
+    </button>
+  </div>
+</div>

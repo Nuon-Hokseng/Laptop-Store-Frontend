@@ -1,0 +1,189 @@
+<main class="bg-[#2A2520] min-h-screen p-5 md:p-10 text-white">
+  <!-- Page Title -->
+  <section class="text-center mb-8">
+    <h1 class="text-3xl md:text-5xl font-bold text-[#D4AF37]">
+      Checkout & Payment
+    </h1>
+    <div class="w-20 h-1 bg-[#D4AF37] rounded-full mx-auto mt-3"></div>
+  </section>
+
+  <section class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <!-- Payment Form -->
+    <div class="lg:col-span-2 bg-[#3A322B] rounded-xl p-6 space-y-6">
+      <h2 class="text-2xl font-semibold">Payment Details</h2>
+
+      <!-- Billing / Shipping -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <input
+          type="text"
+          placeholder="Full name"
+          [(ngModel)]="name"
+          name="name"
+          required
+          class="p-3 rounded-lg bg-[#2A2520] border border-[#5A534C] placeholder:opacity-70"
+        />
+        <input
+          type="text"
+          placeholder="Shipping address"
+          [(ngModel)]="shippingAddress"
+          name="shippingAddress"
+          required
+          class="p-3 rounded-lg bg-[#2A2520] border border-[#5A534C] placeholder:opacity-70"
+        />
+      </div>
+
+      <!-- Card Info -->
+      <div class="space-y-3">
+        <label class="text-sm opacity-80">Card information</label>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <input
+            type="text"
+            placeholder="Card number"
+            [(ngModel)]="cardNumber"
+            name="cardNumber"
+            required
+            class="md:col-span-2 p-3 rounded-lg bg-[#2A2520] border border-[#5A534C] placeholder:opacity-70"
+          />
+          <input
+            type="text"
+            placeholder="MM/YY"
+            [(ngModel)]="expiredDate"
+            name="expiredDate"
+            required
+            class="p-3 rounded-lg bg-[#2A2520] border border-[#5A534C] placeholder:opacity-70"
+          />
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <input
+            type="text"
+            placeholder="CVV"
+            [(ngModel)]="CVV"
+            name="CVV"
+            required
+            class="p-3 rounded-lg bg-[#2A2520] border border-[#5A534C] placeholder:opacity-70 w-full md:w-1/2"
+          />
+        </div>
+      </div>
+
+      <!-- Notes / Promo -->
+      <div>
+        <textarea
+          rows="3"
+          placeholder="Order notes (optional)"
+          [(ngModel)]="orderNote"
+          name="orderNote"
+          class="w-full p-3 rounded-lg bg-[#2A2520] border border-[#5A534C] placeholder:opacity-70"
+        ></textarea>
+      </div>
+
+      <!-- Actions -->
+      <div class="flex justify-end">
+        <button
+          (click)="pay()"
+          [disabled]="isProcessing()"
+          [class]="
+            isProcessing()
+              ? 'px-6 py-3 rounded-xl bg-gray-500 text-white font-bold cursor-not-allowed'
+              : 'px-6 py-3 rounded-xl bg-[#D4AF37] text-black font-bold hover:bg-[#b7942f] transition'
+          "
+        >
+          {{
+            isProcessing()
+              ? "Processing..."
+              : "Pay " + (getTotal() | currency : "USD" : true)
+          }}
+        </button>
+      </div>
+    </div>
+
+    <!-- Order Summary -->
+    <aside class="bg-[#3A322B] rounded-xl p-6 space-y-4">
+      <h2 class="text-2xl font-semibold">Order Summary</h2>
+
+      <ul class="space-y-3">
+        <li
+          *ngFor="let it of items"
+          class="flex justify-between items-center bg-[#2A2520] p-3 rounded-lg"
+        >
+          <div>
+            <div class="font-bold">{{ it.title }}</div>
+            <div class="text-sm opacity-80">Qty: {{ it.quantity }}</div>
+          </div>
+          <div class="text-[#D4AF37] font-bold">
+            {{ it.price * it.quantity | currency : "USD" : true }}
+          </div>
+        </li>
+      </ul>
+
+      <div class="pt-3 border-t border-[#5A534C]">
+        <div class="flex justify-between items-center text-xl font-bold">
+          <div>Total</div>
+          <div class="text-[#D4AF37]">
+            {{ getTotal() | currency : "USD" : true }}
+          </div>
+        </div>
+      </div>
+    </aside>
+  </section>
+
+  <!-- Success Modal -->
+  <div
+    *ngIf="showSuccessModal()"
+    class="fixed inset-0 z-50 flex items-center justify-center"
+  >
+    <div
+      class="absolute inset-0 bg-black/70 backdrop-blur-sm"
+      (click)="closeModal()"
+    ></div>
+    <div
+      class="relative bg-[#2A2520] border-2 border-[#D4AF37] rounded-xl w-11/12 max-w-md mx-auto p-8 shadow-2xl animate-bounce-in"
+      (click)="$event.stopPropagation()"
+    >
+      <!-- Success Icon -->
+      <div class="text-center mb-6">
+        <div
+          class="w-20 h-20 bg-green-500 rounded-full flex items-center justify-center mx-auto mb-4"
+        >
+          <svg
+            class="w-12 h-12 text-white"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="3"
+              d="M5 13l4 4L19 7"
+            ></path>
+          </svg>
+        </div>
+        <h2 class="text-3xl font-bold text-[#D4AF37] mb-2">
+          Payment Successful!
+        </h2>
+        <p class="text-[#CFC3B6] text-lg">
+          Your order has been placed successfully.
+        </p>
+      </div>
+
+      <!-- Order Details -->
+      <div class="bg-[#3A322B] rounded-lg p-4 mb-6">
+        <p class="text-sm text-[#CFC3B6] mb-2">Order Total</p>
+        <p class="text-3xl font-bold text-[#D4AF37]">
+          {{ paymentTotal | currency : "USD" : true }}
+        </p>
+      </div>
+
+      <p class="text-center text-[#CFC3B6] text-sm mb-4">
+        Redirecting to your order history...
+      </p>
+
+      <button
+        (click)="closeModal()"
+        class="w-full px-6 py-3 bg-[#D4AF37] text-black font-bold rounded-xl hover:bg-[#b7942f] transition"
+      >
+        View Order History
+      </button>
+    </div>
+  </div>
+</main>

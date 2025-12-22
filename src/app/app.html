@@ -1,0 +1,372 @@
+<main class="main">
+  <section *ngIf="!isAdminRoute()">
+    <header>
+      <nav
+        class="bg-[#2A2520] text-white p-5 flex flex-wrap items-center justify-between"
+      >
+        <!-- Logo -->
+        <div
+          id="logo"
+          class="flex items-center text-3xl font-bold text-[#D4AF37]"
+        >
+          <a routerLink="/home" class="flex items-center space-x-2">
+            <lucide-angular size="35" [img]="Book"></lucide-angular>
+            <span>TechStore</span>
+          </a>
+        </div>
+
+        <!-- Desktop Navigation Links -->
+        <div id="navigation" class="hidden md:flex text-xl">
+          <ul class="flex space-x-10">
+            <li>
+              <a
+                routerLink="/home"
+                class="transition-all duration-200 hover:scale-110 hover:text-[#D4AF37] cursor-pointer"
+              >
+                Home
+              </a>
+            </li>
+            <li>
+              <a
+                routerLink="/about"
+                class="transition-all duration-200 hover:scale-110 hover:text-[#D4AF37] cursor-pointer"
+              >
+                About
+              </a>
+            </li>
+          </ul>
+        </div>
+
+        <!-- Cart + Mobile Hamburger -->
+        <div class="flex items-center space-x-2 md:space-x-0">
+          <lucide-angular
+            [img]="Search"
+            size="35"
+            (click)="toggleSearch()"
+            class="ml-4 cursor-pointer hover:text-[#D4AF37] transition-all duration-200"
+          >
+          </lucide-angular>
+
+          <!-- Profile Icon (Desktop Only, when authenticated) -->
+          <lucide-angular
+            *ngIf="isAuthenticated()"
+            routerLink="/profile"
+            size="35"
+            [img]="User"
+            class="hidden md:block ml-4 transition-all duration-200 hover:scale-105 hover:text-[#D4AF37] cursor-pointer"
+            title="My Orders"
+          ></lucide-angular>
+
+          <!-- Cart Icon (Desktop Only, when authenticated) -->
+          <lucide-angular
+            *ngIf="isAuthenticated()"
+            routerLink="/cart"
+            size="35"
+            [img]="ShoppingCart"
+            class="hidden md:block ml-4 transition-all duration-200 hover:scale-105 hover:text-[#D4AF37] cursor-pointer"
+          ></lucide-angular>
+
+          <div
+            *ngIf="!isAuthenticated()"
+            class="w-15 h-10 border bg-[#D4AF37] text-black justify-center items-center flex ml-6 mr-6 rounded-xl cursor-pointer hover:bg-[#C9A42C] transition-all"
+            (click)="toggleLogin()"
+          >
+            <p>Login</p>
+          </div>
+          <div
+            *ngIf="isAuthenticated()"
+            class="flex items-center space-x-4 ml-6 mr-6"
+          >
+            <div
+              class="px-4 h-10 border bg-green-600 text-white justify-center items-center flex rounded-xl cursor-default"
+            >
+              <p>✓ Logged In</p>
+            </div>
+            <button
+              (click)="onLogout()"
+              class="h-10 px-4 bg-red-600 text-white rounded-xl cursor-pointer hover:bg-red-700 transition-all flex items-center space-x-2"
+              title="Logout"
+            >
+              <lucide-angular [img]="LogOut" size="20"></lucide-angular>
+              <span class="hidden sm:inline">Logout</span>
+            </button>
+          </div>
+
+          <!-- Hamburger Menu (Mobile Only) -->
+          <button
+            (click)="toggleMenu()"
+            class="md:hidden text-white focus:outline-none"
+          >
+            <svg
+              class="w-8 h-8"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M4 6h16M4 12h16M4 18h16"
+              />
+            </svg>
+          </button>
+        </div>
+      </nav>
+
+      <!-- Search Input -->
+      <div
+        *ngIf="searchOpen"
+        class="bg-[#2A2520] border-t border-[#D4AF37] p-4 animate-slide-down"
+      >
+        <div class="max-w-2xl mx-auto">
+          <div class="relative">
+            <input
+              type="text"
+              [(ngModel)]="searchQuery"
+              (keyup.enter)="onSearch()"
+              placeholder="Search for books..."
+              class="w-full px-4 py-2 border-2 border-[#D4AF37] rounded-lg bg-[#2A2520] text-white focus:outline-none focus:ring-2 focus:ring-[#D4AF37]"
+              autofocus
+            />
+            <button
+              (click)="onSearch()"
+              class="absolute right-2 top-1/2 transform -translate-y-1/2 px-4 py-1 bg-[#D4AF37] text-[#2A2520] rounded hover:bg-[#C9A42C] transition-all"
+            >
+              Search
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Mobile Menu -->
+      <div *ngIf="menuOpen" class="md:hidden bg-[#2A2520] text-white px-5 pb-5">
+        <ul class="flex flex-col space-y-3">
+          <li>
+            <a
+              routerLink="/home"
+              class="transition-all duration-200 hover:scale-110 hover:text-[#D4AF37] cursor-pointer"
+            >
+              Home
+            </a>
+          </li>
+          <li>
+            <a
+              routerLink="/about"
+              class="transition-all duration-200 hover:scale-110 hover:text-[#D4AF37] cursor-pointer"
+            >
+              About
+            </a>
+          </li>
+          <li *ngIf="isAuthenticated()">
+            <a
+              routerLink="/profile"
+              class="transition-all duration-200 hover:scale-110 hover:text-[#D4AF37] cursor-pointer"
+            >
+              My Orders
+            </a>
+          </li>
+          <li *ngIf="isAuthenticated()">
+            <a
+              routerLink="/cart"
+              class="transition-all duration-200 hover:scale-110 hover:text-[#D4AF37] cursor-pointer"
+            >
+              Cart
+            </a>
+          </li>
+        </ul>
+      </div>
+    </header>
+  </section>
+  <router-outlet></router-outlet>
+
+  <!-- Global Popup Modal -->
+  <app-popup></app-popup>
+
+  <!-- pop up login/signup modal -->
+  <div
+    *ngIf="LoginOpen && !isAdminRoute()"
+    class="fixed inset-0 z-50 flex items-center justify-center"
+  >
+    <div
+      class="absolute inset-0 bg-white-700/85 backdrop-blur-sm"
+      (click)="toggleLogin()"
+    ></div>
+    <div
+      class="relative bg-[#2A2520] border border-[#5A534C] rounded-lg w-11/12 max-w-md mx-auto p-6 shadow-lg"
+      (click)="$event.stopPropagation()"
+    >
+      <div class="relative mb-4">
+        <h2 class="text-2xl font-semibold text-[#EDE1D6] text-center">
+          {{ authTab === "login" ? "Welcome back" : "Create account" }}
+        </h2>
+        <button
+          (click)="toggleLogin()"
+          aria-label="Close"
+          class="absolute right-0 top-1/2 transform -translate-y-1/2 text-[#CFC3B6] hover:text-white"
+        >
+          &times;
+        </button>
+      </div>
+
+      <div class="mb-5 flex justify-center">
+        <div class="flex bg-[#3d352f] rounded-full p-1">
+          <button
+            type="button"
+            (click)="setAuthTab('login')"
+            [ngClass]="
+              authTab === 'login'
+                ? 'px-4 py-2 rounded-full bg-[#D4AF37] text-[#2A2520] font-semibold'
+                : 'px-4 py-2 rounded-full text-[#CFC3B6]'
+            "
+          >
+            Login
+          </button>
+          <button
+            type="button"
+            (click)="setAuthTab('signup')"
+            [ngClass]="
+              authTab === 'signup'
+                ? 'px-4 py-2 rounded-full bg-[#D4AF37] text-[#2A2520] font-semibold'
+                : 'px-4 py-2 rounded-full text-[#CFC3B6]'
+            "
+          >
+            Sign Up
+          </button>
+        </div>
+      </div>
+
+      <!-- Error Message -->
+      <div
+        *ngIf="authError"
+        class="mb-4 p-3 bg-red-900/50 border border-red-500 rounded text-red-200 text-sm"
+      >
+        {{ authError }}
+      </div>
+
+      <form
+        *ngIf="authTab === 'login'"
+        (submit)="onLogin(); $event.preventDefault()"
+      >
+        <label class="block text-sm text-[#CFC3B6] mb-1">Email</label>
+        <div class="relative mb-3">
+          <input
+            type="email"
+            [(ngModel)]="loginEmail"
+            name="loginEmail"
+            required
+            class="w-full px-4 py-2 mb-3 border border-[#5A534C] rounded bg-[#3b332f] text-[#EDE1D6] placeholder-[#BDAF8F]"
+            placeholder="john@example.com"
+          />
+        </div>
+
+        <label class="block text-sm text-[#CFC3B6] mb-1">Password</label>
+        <div class="relative mb-4">
+          <input
+            placeholder="••••••••"
+            type="password"
+            [(ngModel)]="loginPassword"
+            name="loginPassword"
+            required
+            class="w-full px-4 py-2 mb-4 border border-[#5A534C] rounded bg-[#3b332f] text-[#EDE1D6] placeholder-[#BDAF8F]"
+          />
+        </div>
+
+        <div class="mb-3">
+          <button
+            type="submit"
+            class="w-full bg-[#D4AF37] text-[#2A2520] px-4 py-2 rounded"
+          >
+            Login
+          </button>
+        </div>
+        <p class="text-center text-sm text-[#CFC3B6]">
+          Don't have an account?
+          <a
+            (click)="setAuthTab('signup')"
+            class="text-[#D4AF37] underline cursor-pointer"
+            >Sign up</a
+          >
+        </p>
+      </form>
+
+      <form
+        *ngIf="authTab === 'signup'"
+        (submit)="onSignup(); $event.preventDefault()"
+      >
+        <label class="block text-sm text-[#CFC3B6] mb-1">Full Name</label>
+        <div class="relative mb-3">
+          <input
+            type="text"
+            [(ngModel)]="signupName"
+            name="signupName"
+            required
+            class="w-full px-4 py-2 mb-3 border border-[#5A534C] rounded bg-[#3b332f] text-[#EDE1D6] placeholder-[#BDAF8F]"
+            placeholder="John Doe"
+          />
+        </div>
+
+        <label class="block text-sm text-[#CFC3B6] mb-1">Email</label>
+        <div class="relative mb-3">
+          <input
+            type="email"
+            [(ngModel)]="signupEmail"
+            name="signupEmail"
+            required
+            class="w-full px-4 py-2 mb-3 border border-[#5A534C] rounded bg-[#3b332f] text-[#EDE1D6] placeholder-[#BDAF8F]"
+            placeholder="john@example.com"
+          />
+        </div>
+
+        <label class="block text-sm text-[#CFC3B6] mb-1">Password</label>
+        <div class="relative mb-3">
+          <input
+            type="password"
+            placeholder="••••••••"
+            [(ngModel)]="signupPassword"
+            name="signupPassword"
+            required
+            class="w-full px-4 py-2 mb-3 border border-[#5A534C] rounded bg-[#3b332f] text-[#EDE1D6] placeholder-[#BDAF8F]"
+          />
+        </div>
+
+        <label class="block text-sm text-[#CFC3B6] mb-1"
+          >Confirm Password</label
+        >
+        <div class="relative mb-4">
+          <input
+            placeholder="••••••••"
+            type="password"
+            [(ngModel)]="signupConfirm"
+            name="signupConfirm"
+            required
+            class="w-full px-4 py-2 mb-4 border border-[#5A534C] rounded bg-[#3b332f] text-[#EDE1D6] placeholder-[#BDAF8F]"
+          />
+        </div>
+
+        <div class="mb-3">
+          <button
+            type="submit"
+            class="w-full bg-[#D4AF37] text-[#2A2520] px-4 py-2 rounded"
+          >
+            Create account
+          </button>
+        </div>
+        <p class="text-center text-sm text-[#CFC3B6]">
+          Already have an account?
+          <a
+            (click)="setAuthTab('login')"
+            class="text-[#D4AF37] underline cursor-pointer"
+            >Login</a
+          >
+        </p>
+      </form>
+    </div>
+  </div>
+  <footer
+    *ngIf="!isAdminRoute()"
+    class="w-full p-8 bg-[#2A2520] border-t border-[#D4AF37] text-center justify-center text-white"
+  >
+    <h1>© 2025 BookVerse. A cozy place for book lovers ☕📖</h1>
+  </footer>
+</main>
