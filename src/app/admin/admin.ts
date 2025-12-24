@@ -44,6 +44,7 @@ export class Admin {
   editingId = signal<string | null>(null);
   isSaving = signal<boolean>(false);
   editForm: any = {};
+  updateSuccessCount = 0; // Counter for update success popups
 
   newLaptop = {
     Brand: '',
@@ -238,10 +239,14 @@ export class Admin {
     this.laptopService.updateLaptop(laptopId, updates).subscribe({
       next: (updated) => {
         console.log('Laptop updated successfully:', updated);
-        this.popup.show('Laptop updated successfully!', {
-          type: 'success',
-          durationMs: 2000,
-        });
+        // Show popup only for first 2 times
+        if (this.updateSuccessCount < 2) {
+          this.popup.show('Laptop updated successfully!', {
+            type: 'success',
+            durationMs: 2000,
+          });
+          this.updateSuccessCount++;
+        }
         this.isSaving.set(false);
         this.editingId.set(null);
         this.editForm = {};
@@ -319,18 +324,12 @@ export class Admin {
           )
         );
         this.savingOrderId.set(null);
-        this.popup.show('Order status updated', {
-          type: 'success',
-          durationMs: 1200,
-        });
+        // Silent update - no popup needed
       },
       error: (err) => {
         console.error('Failed to update status:', err);
         this.savingOrderId.set(null);
-        this.popup.show('Failed to update order status', {
-          type: 'error',
-          durationMs: 2200,
-        });
+        // Silent error - just log it
       },
     });
   }
