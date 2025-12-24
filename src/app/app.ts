@@ -31,7 +31,7 @@ import { PopupComponent } from './shared/popup';
 })
 export class App {
   private authService = inject(AuthService);
-  private cartService = inject(CartService);
+  cartService = inject(CartService);
   private laptopService = inject(LaptopService);
   private router = inject(Router);
 

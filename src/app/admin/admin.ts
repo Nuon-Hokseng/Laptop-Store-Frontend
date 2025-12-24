@@ -1,6 +1,7 @@
 import { Component, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { LucideAngularModule, Edit, Trash2 } from 'lucide-angular';
 import { LaptopService, Laptop } from '../services/item.service';
 import { AdminAuthService } from '../services/admin-auth.service';
 import { PopupService } from '../shared/popup.service';
@@ -10,7 +11,7 @@ import { OrderService, Order } from '../services/order.service';
 @Component({
   selector: 'app-admin',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, LucideAngularModule],
   templateUrl: './admin.html',
   styleUrls: ['./admin.css'],
 })
@@ -26,6 +27,10 @@ export class Admin {
   error = this.laptopService.error;
   showAddForm = false;
 
+  // Icons
+  readonly Edit = Edit;
+  readonly Trash2 = Trash2;
+
   // Tabs: 'laptops' | 'orders'
   activeTab: 'laptops' | 'orders' = 'laptops';
 
@@ -34,6 +39,11 @@ export class Admin {
   ordersLoading = signal<boolean>(false);
   ordersError = signal<string | null>(null);
   savingOrderId = signal<string | null>(null);
+
+  // Editing state
+  editingId = signal<string | null>(null);
+  isSaving = signal<boolean>(false);
+  editForm: any = {};
 
   newLaptop = {
     Brand: '',
@@ -54,9 +64,62 @@ export class Admin {
     'Modular',
   ];
 
+  brands = signal<string[]>([]);
+
+  // Manage categories and brands
+  showManageOptions = signal<boolean>(false);
+  newBrandInput = '';
+  newCategoryInput = '';
+
   constructor() {
     // Fetch laptops when admin page loads
     this.laptopService.fetchLaptops();
+    // Fetch brands and categories from backend
+    this.fetchBrandsAndCategories();
+  }
+
+  fetchBrandsAndCategories() {
+    // Fetch brands
+    this.laptopService.fetchBrands().subscribe({
+      next: (brands) => {
+        console.log('[Admin] Brands fetched from backend:', brands);
+        this.brands.set(brands || []);
+      },
+      error: (err) => {
+        console.error('[Admin] Failed to fetch brands:', err);
+        // Fallback to default brands if backend fails
+        this.brands.set([
+          'Apple',
+          'Dell',
+          'HP',
+          'Lenovo',
+          'Asus',
+          'Acer',
+          'MSI',
+          'Razer',
+          'Microsoft',
+        ]);
+      },
+    });
+
+    // Fetch categories
+    this.laptopService.fetchCategories().subscribe({
+      next: (categories) => {
+        console.log('[Admin] Categories fetched from backend:', categories);
+        this.categories = categories || [
+          'Ultrabook',
+          'Gaming',
+          'Business',
+          '2-in-1',
+          'Creator',
+          'Modular',
+        ];
+      },
+      error: (err) => {
+        console.error('[Admin] Failed to fetch categories:', err);
+        // Keep default categories if backend fails
+      },
+    });
   }
 
   toggleAddForm() {
@@ -107,11 +170,91 @@ export class Admin {
     this.laptopService.deleteLaptop(laptop._id).subscribe({
       next: () => {
         console.log('Laptop deleted successfully');
-        alert(`Laptop "${name}" deleted successfully!`);
+        this.popup.show(`Laptop "${name}" deleted successfully!`, {
+          type: 'success',
+          durationMs: 2000,
+        });
       },
       error: (err) => {
         console.error('Failed to delete laptop:', err);
-        alert('Failed to delete laptop. Make sure the backend is running.');
+        this.popup.show(
+          'Failed to delete laptop. Make sure the backend is running.',
+          {
+            type: 'error',
+            durationMs: 2500,
+          }
+        );
+      },
+    });
+  }
+
+  startEditing(laptop: Laptop) {
+    this.editingId.set(laptop._id);
+    this.editForm = {
+      Brand: laptop.Brand,
+      Model: laptop.Model,
+      Spec: laptop.Spec,
+      price: laptop.price,
+      category: laptop.category,
+      description: laptop.description || '',
+      image_url: laptop.image_url || laptop.coverImage || '',
+    };
+  }
+
+  cancelEdit() {
+    this.editingId.set(null);
+    this.editForm = {};
+  }
+
+  saveEdit() {
+    const laptopId = this.editingId();
+    if (!laptopId) return;
+
+    if (
+      !this.editForm.Brand ||
+      !this.editForm.Model ||
+      !this.editForm.Spec ||
+      this.editForm.price <= 0
+    ) {
+      this.popup.show('Please fill in all required fields', {
+        type: 'error',
+        durationMs: 2000,
+      });
+      return;
+    }
+
+    this.isSaving.set(true);
+
+    const updates = {
+      Brand: this.editForm.Brand,
+      Model: this.editForm.Model,
+      Spec: this.editForm.Spec,
+      price: this.editForm.price,
+      category: this.editForm.category,
+      description: this.editForm.description,
+      image_url: this.editForm.image_url,
+    };
+
+    this.laptopService.updateLaptop(laptopId, updates).subscribe({
+      next: (updated) => {
+        console.log('Laptop updated successfully:', updated);
+        this.popup.show('Laptop updated successfully!', {
+          type: 'success',
+          durationMs: 2000,
+        });
+        this.isSaving.set(false);
+        this.editingId.set(null);
+        this.editForm = {};
+        // Refresh the list
+        this.laptopService.fetchLaptops();
+      },
+      error: (err) => {
+        console.error('Failed to update laptop:', err);
+        this.popup.show('Failed to update laptop. Please try again.', {
+          type: 'error',
+          durationMs: 2500,
+        });
+        this.isSaving.set(false);
       },
     });
   }
@@ -189,6 +332,116 @@ export class Admin {
           durationMs: 2200,
         });
       },
+    });
+  }
+
+  toggleManageOptions() {
+    this.showManageOptions.update((v) => !v);
+  }
+
+  addNewBrand() {
+    const brand = this.newBrandInput.trim();
+    if (!brand) {
+      this.popup.show('Please enter a brand name', {
+        type: 'error',
+        durationMs: 1500,
+      });
+      return;
+    }
+    if (this.brands().includes(brand)) {
+      this.popup.show('Brand already exists', {
+        type: 'error',
+        durationMs: 1500,
+      });
+      return;
+    }
+
+    // Add to backend
+    this.laptopService.addBrand(brand).subscribe({
+      next: (brands) => {
+        this.brands.set(brands || []);
+        this.newBrandInput = '';
+        this.popup.show(`Brand "${brand}" added successfully`, {
+          type: 'success',
+          durationMs: 1500,
+        });
+      },
+      error: (err) => {
+        console.error('[Admin] Failed to add brand:', err);
+        this.popup.show('Failed to add brand to database', {
+          type: 'error',
+          durationMs: 2000,
+        });
+      },
+    });
+  }
+
+  removeBrand(brand: string) {
+    if (
+      !confirm(`Remove brand "${brand}"? This won't affect existing laptops.`)
+    ) {
+      return;
+    }
+
+    // For now, just update locally since we don't have a delete endpoint
+    this.brands.update((curr) => curr.filter((b) => b !== brand));
+    this.popup.show(`Brand "${brand}" removed (local only)`, {
+      type: 'success',
+      durationMs: 1500,
+    });
+  }
+
+  addNewCategory() {
+    const category = this.newCategoryInput.trim();
+    if (!category) {
+      this.popup.show('Please enter a category name', {
+        type: 'error',
+        durationMs: 1500,
+      });
+      return;
+    }
+    if (this.categories.includes(category)) {
+      this.popup.show('Category already exists', {
+        type: 'error',
+        durationMs: 1500,
+      });
+      return;
+    }
+
+    // Add to backend
+    this.laptopService.addCategory(category).subscribe({
+      next: (categories) => {
+        this.categories = categories || [];
+        this.newCategoryInput = '';
+        this.popup.show(`Category "${category}" added successfully`, {
+          type: 'success',
+          durationMs: 1500,
+        });
+      },
+      error: (err) => {
+        console.error('[Admin] Failed to add category:', err);
+        this.popup.show('Failed to add category to database', {
+          type: 'error',
+          durationMs: 2000,
+        });
+      },
+    });
+  }
+
+  removeCategory(category: string) {
+    if (
+      !confirm(
+        `Remove category "${category}"? This won't affect existing laptops.`
+      )
+    ) {
+      return;
+    }
+
+    // For now, just update locally since we don't have a delete endpoint
+    this.categories = this.categories.filter((c) => c !== category);
+    this.popup.show(`Category "${category}" removed (local only)`, {
+      type: 'success',
+      durationMs: 1500,
     });
   }
 }

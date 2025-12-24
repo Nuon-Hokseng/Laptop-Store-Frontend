@@ -23,18 +23,10 @@ export class Homescreen {
   toastVisible = false;
   toastMessage = '';
 
-  categories = [
-    'All',
-    'Ultrabook',
-    'Gaming',
-    'Business',
-    '2-in-1',
-    'Creator',
-    'Modular',
-  ];
+  categories = ['All'];
   selectedCategory = 'All';
 
-  brands = ['All', 'Apple', 'Dell', 'HP', 'ASUS', 'Lenovo', 'MSI'];
+  brands = ['All'];
   selectedBrand = 'All';
 
   get laptops() {
@@ -80,6 +72,25 @@ export class Homescreen {
 
   constructor() {
     this.laptopService.fetchLaptops();
+
+    // Fetch brands and categories from backend
+    this.laptopService.fetchBrands().subscribe({
+      next: (brands) => {
+        this.brands = ['All', ...brands];
+      },
+      error: (err) => {
+        console.error('[Homescreen] Failed to fetch brands:', err);
+      },
+    });
+
+    this.laptopService.fetchCategories().subscribe({
+      next: (categories) => {
+        this.categories = ['All', ...categories];
+      },
+      error: (err) => {
+        console.error('[Homescreen] Failed to fetch categories:', err);
+      },
+    });
   }
 
   addToCart(laptop: any) {

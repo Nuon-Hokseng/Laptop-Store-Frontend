@@ -1,1 +1,10 @@
 @import "tailwindcss";
+
+.cart-icon-ring {
+  animation: ring-pulse 2s infinite;
+}
+
+.cart-icon-ring:hover {
+  animation: none;
+  color: #ea580c;
+}

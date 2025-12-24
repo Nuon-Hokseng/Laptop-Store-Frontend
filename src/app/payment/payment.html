@@ -1,127 +1,164 @@
-<main class="bg-[#2A2520] min-h-screen p-5 md:p-10 text-white">
+<main class="bg-white h-full min-h-screen">
   <!-- Page Title -->
-  <section class="text-center mb-8">
-    <h1 class="text-3xl md:text-5xl font-bold text-[#D4AF37]">
-      Checkout & Payment
-    </h1>
-    <div class="w-20 h-1 bg-[#D4AF37] rounded-full mx-auto mt-3"></div>
+  <section
+    class="text-gray-900 text-center p-6 md:p-8 border-b border-gray-300"
+  >
+    <h1 class="text-3xl md:text-4xl font-bold">Checkout & Payment</h1>
+    <p class="text-gray-600 mt-2 text-sm md:text-base">
+      Complete your order securely
+    </p>
   </section>
 
-  <section class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+  <section class="grid grid-cols-1 lg:grid-cols-3 gap-8 p-6 md:p-8">
     <!-- Payment Form -->
-    <div class="lg:col-span-2 bg-[#3A322B] rounded-xl p-6 space-y-6">
-      <h2 class="text-2xl font-semibold">Payment Details</h2>
+    <div class="lg:col-span-2">
+      <div class="bg-gray-50 border border-gray-200 rounded-lg p-6 space-y-6">
+        <h2 class="text-2xl font-semibold text-gray-900">Payment Details</h2>
 
-      <!-- Billing / Shipping -->
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <input
-          type="text"
-          placeholder="Full name"
-          [(ngModel)]="name"
-          name="name"
-          required
-          class="p-3 rounded-lg bg-[#2A2520] border border-[#5A534C] placeholder:opacity-70"
-        />
-        <input
-          type="text"
-          placeholder="Shipping address"
-          [(ngModel)]="shippingAddress"
-          name="shippingAddress"
-          required
-          class="p-3 rounded-lg bg-[#2A2520] border border-[#5A534C] placeholder:opacity-70"
-        />
-      </div>
-
-      <!-- Card Info -->
-      <div class="space-y-3">
-        <label class="text-sm opacity-80">Card information</label>
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <!-- Billing / Shipping -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <input
             type="text"
-            placeholder="Card number"
-            [(ngModel)]="cardNumber"
-            name="cardNumber"
+            placeholder="Full name"
+            [(ngModel)]="name"
+            name="name"
             required
-            class="md:col-span-2 p-3 rounded-lg bg-[#2A2520] border border-[#5A534C] placeholder:opacity-70"
+            class="p-3 rounded-lg bg-white border border-gray-300 text-gray-900 placeholder:text-gray-500 focus:outline-none focus:border-orange-500"
           />
           <input
             type="text"
-            placeholder="MM/YY"
-            [(ngModel)]="expiredDate"
-            name="expiredDate"
+            placeholder="Shipping address"
+            [(ngModel)]="shippingAddress"
+            name="shippingAddress"
             required
-            class="p-3 rounded-lg bg-[#2A2520] border border-[#5A534C] placeholder:opacity-70"
+            class="p-3 rounded-lg bg-white border border-gray-300 text-gray-900 placeholder:text-gray-500 focus:outline-none focus:border-orange-500"
           />
         </div>
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <input
-            type="text"
-            placeholder="CVV"
-            [(ngModel)]="CVV"
-            name="CVV"
-            required
-            class="p-3 rounded-lg bg-[#2A2520] border border-[#5A534C] placeholder:opacity-70 w-full md:w-1/2"
-          />
+
+        <!-- Card Info -->
+        <div class="space-y-3">
+          <label class="text-sm font-medium text-gray-700"
+            >Card information</label
+          >
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <input
+              type="text"
+              placeholder="Card number"
+              [(ngModel)]="cardNumber"
+              name="cardNumber"
+              required
+              class="md:col-span-2 p-3 rounded-lg bg-white border border-gray-300 text-gray-900 placeholder:text-gray-500 focus:outline-none focus:border-orange-500"
+            />
+            <input
+              type="text"
+              placeholder="MM/YY"
+              [(ngModel)]="expiredDate"
+              name="expiredDate"
+              required
+              class="p-3 rounded-lg bg-white border border-gray-300 text-gray-900 placeholder:text-gray-500 focus:outline-none focus:border-orange-500"
+            />
+          </div>
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <input
+              type="text"
+              placeholder="CVV"
+              [(ngModel)]="CVV"
+              name="CVV"
+              required
+              class="p-3 rounded-lg bg-white border border-gray-300 text-gray-900 placeholder:text-gray-500 focus:outline-none focus:border-orange-500 w-full md:w-1/2"
+            />
+          </div>
         </div>
-      </div>
 
-      <!-- Notes / Promo -->
-      <div>
-        <textarea
-          rows="3"
-          placeholder="Order notes (optional)"
-          [(ngModel)]="orderNote"
-          name="orderNote"
-          class="w-full p-3 rounded-lg bg-[#2A2520] border border-[#5A534C] placeholder:opacity-70"
-        ></textarea>
-      </div>
+        <!-- Notes / Promo -->
+        <div>
+          <textarea
+            rows="3"
+            placeholder="Order notes (optional)"
+            [(ngModel)]="orderNote"
+            name="orderNote"
+            class="w-full p-3 rounded-lg bg-white border border-gray-300 text-gray-900 placeholder:text-gray-500 focus:outline-none focus:border-orange-500"
+          ></textarea>
+        </div>
 
-      <!-- Actions -->
-      <div class="flex justify-end">
-        <button
-          (click)="pay()"
-          [disabled]="isProcessing()"
-          [class]="
-            isProcessing()
-              ? 'px-6 py-3 rounded-xl bg-gray-500 text-white font-bold cursor-not-allowed'
-              : 'px-6 py-3 rounded-xl bg-[#D4AF37] text-black font-bold hover:bg-[#b7942f] transition'
-          "
-        >
-          {{
-            isProcessing()
-              ? "Processing..."
-              : "Pay " + (getTotal() | currency : "USD" : true)
-          }}
-        </button>
+        <!-- Actions -->
+        <div class="flex justify-end">
+          <button
+            (click)="pay()"
+            [disabled]="isProcessing()"
+            [class]="
+              isProcessing()
+                ? 'px-6 py-3 rounded-lg bg-gray-400 text-white font-bold cursor-not-allowed'
+                : 'px-6 py-3 rounded-lg bg-orange-500 text-white font-bold hover:bg-orange-600 transition'
+            "
+          >
+            {{
+              isProcessing()
+                ? "Processing..."
+                : "Pay " + (getTotal() | currency : "USD" : true)
+            }}
+          </button>
+        </div>
       </div>
     </div>
 
     <!-- Order Summary -->
-    <aside class="bg-[#3A322B] rounded-xl p-6 space-y-4">
-      <h2 class="text-2xl font-semibold">Order Summary</h2>
+    <aside class="lg:col-span-1">
+      <div class="text-[#525252] rounded-lg p-6 sticky top-8">
+        <h2 class="text-2xl font-bold mb-6">Order Summary</h2>
 
-      <ul class="space-y-3">
-        <li
-          *ngFor="let it of items"
-          class="flex justify-between items-center bg-[#2A2520] p-3 rounded-lg"
-        >
-          <div>
-            <div class="font-bold">{{ it.title }}</div>
-            <div class="text-sm opacity-80">Qty: {{ it.quantity }}</div>
+        <!-- Items with Icons -->
+        <div class="mb-6 pb-6 border-b border-orange-400">
+          <h3 class="text-sm font-semibold text-[#525252] mb-3">Items</h3>
+          <div class="flex flex-wrap gap-3">
+            <div
+              *ngFor="let it of items"
+              class="w-16 h-16 bg-white rounded-lg flex items-center justify-center relative group overflow-hidden"
+              [title]="it.title + ' (Qty: ' + it.quantity + ')'"
+            >
+              <img
+                *ngIf="it.coverImage"
+                [src]="it.coverImage"
+                [alt]="it.title"
+                class="w-full h-full object-contain"
+              />
+              <span
+                *ngIf="!it.coverImage"
+                class="text-gray-400 text-xs text-center"
+                >No Image</span
+              >
+            </div>
           </div>
-          <div class="text-[#D4AF37] font-bold">
-            {{ it.price * it.quantity | currency : "USD" : true }}
-          </div>
-        </li>
-      </ul>
+        </div>
 
-      <div class="pt-3 border-t border-[#5A534C]">
-        <div class="flex justify-between items-center text-xl font-bold">
+        <!-- Item Details List -->
+        <ul class="space-y-3 mb-6 pb-6 border-b border-orange-400">
+          <li *ngFor="let it of items" class="text-sm">
+            <div class="flex justify-between">
+              <span>{{ it.title }}</span>
+              <span class="font-semibold">{{
+                it.price * it.quantity | currency : "USD" : true
+              }}</span>
+            </div>
+            <div class="text-[#525252] text-xs">Qty: {{ it.quantity }}</div>
+          </li>
+        </ul>
+
+        <!-- Total -->
+        <div class="flex justify-between items-center text-lg font-bold mb-6">
           <div>Total</div>
-          <div class="text-[#D4AF37]">
+          <div class="text-2xl">
             {{ getTotal() | currency : "USD" : true }}
           </div>
         </div>
+
+        <!-- Back to Cart -->
+        <button
+          routerLink="/cart"
+          class="border border-gray-200 w-full px-4 py-2 rounded-lg bg-white text-orange-500 font-semibold hover:bg-gray-100 transition text-sm"
+        >
+          Back to Cart
+        </button>
       </div>
     </aside>
   </section>
@@ -136,7 +173,7 @@
       (click)="closeModal()"
     ></div>
     <div
-      class="relative bg-[#2A2520] border-2 border-[#D4AF37] rounded-xl w-11/12 max-w-md mx-auto p-8 shadow-2xl animate-bounce-in"
+      class="relative bg-white rounded-lg w-11/12 max-w-md mx-auto p-8 shadow-2xl"
       (click)="$event.stopPropagation()"
     >
       <!-- Success Icon -->
@@ -158,29 +195,29 @@
             ></path>
           </svg>
         </div>
-        <h2 class="text-3xl font-bold text-[#D4AF37] mb-2">
+        <h2 class="text-3xl font-bold text-gray-900 mb-2">
           Payment Successful!
         </h2>
-        <p class="text-[#CFC3B6] text-lg">
+        <p class="text-gray-600 text-lg">
           Your order has been placed successfully.
         </p>
       </div>
 
       <!-- Order Details -->
-      <div class="bg-[#3A322B] rounded-lg p-4 mb-6">
-        <p class="text-sm text-[#CFC3B6] mb-2">Order Total</p>
-        <p class="text-3xl font-bold text-[#D4AF37]">
+      <div class="bg-orange-50 rounded-lg p-4 mb-6 border border-orange-200">
+        <p class="text-sm text-gray-600 mb-2">Order Total</p>
+        <p class="text-3xl font-bold text-orange-500">
           {{ paymentTotal | currency : "USD" : true }}
         </p>
       </div>
 
-      <p class="text-center text-[#CFC3B6] text-sm mb-4">
+      <p class="text-center text-gray-600 text-sm mb-4">
         Redirecting to your order history...
       </p>
 
       <button
         (click)="closeModal()"
-        class="w-full px-6 py-3 bg-[#D4AF37] text-black font-bold rounded-xl hover:bg-[#b7942f] transition"
+        class="w-full px-6 py-3 bg-orange-500 text-white font-bold rounded-lg hover:bg-orange-600 transition"
       >
         View Order History
       </button>

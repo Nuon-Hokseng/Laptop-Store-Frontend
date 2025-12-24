@@ -1,33 +1,35 @@
-<main class="bg-[#2A2520] h-full min-h-screen">
+<main class="bg-white h-full min-h-screen">
   <!-- Hero Section -->
   <section
     id="hero"
-    class="text-white flex flex-col md:flex-row p-10 md:p-20 border-t border-b border-[#D4AF37]"
+    class="text-gray-900 flex items-center justify-center p-6 md:p-12 border-b border-gray-300"
   >
-    <div class="text-2xl md:text-3xl space-y-4">
-      <h1 class="text-3xl md:text-5xl font-bold">Welcome to Laptop Lounge</h1>
-      <h2 class="text-lg md:text-xl">
-        Find your next notebook for work, play, or creation. Curated laptops,
-        ready to ship 💻⚡️
+    <div class="text-center space-y-4 max-w-2xl">
+      <h1 class="text-4xl md:text-2xl font-bold">
+        Premium Laptops for Every Need
+      </h1>
+      <h2 class="text-lg md:text-lg text-gray-700">
+        Discover high-performance laptops from the world's leading brands.
+        Quality, reliability, and innovation in every device.
       </h2>
     </div>
   </section>
 
   <!-- Browse by Genre -->
-  <section id="main" class="text-white text-xl p-5 md:p-10 space-y-5">
-    <h1 class="text-2xl md:text-3xl font-semibold">Browse by Category</h1>
+  <section id="main" class="text-gray-900 text-base p-4 md:p-8 space-y-4">
+    <h1 class="text-xl md:text-2xl font-semibold">Browse by Category</h1>
 
     <!-- Search Active Message -->
     <div
       *ngIf="laptopService.searchQuery()"
-      class="bg-[#D4AF37] text-black px-4 py-2 rounded-xl flex items-center justify-between"
+      class="bg-orange-500 text-white px-4 py-2 rounded-lg flex items-center justify-between text-sm"
     >
       <span
         >Searching for: <strong>{{ laptopService.searchQuery() }}</strong></span
       >
       <button
         (click)="clearSearch()"
-        class="ml-4 px-3 py-1 bg-[#2A2520] text-white rounded-lg hover:bg-[#3A322B] transition"
+        class="ml-4 px-3 py-1 bg-gray-700 text-white rounded-md hover:bg-gray-800 transition text-xs"
       >
         Clear Search
       </button>
@@ -35,14 +37,14 @@
 
     <!-- Categories -->
     <div class="overflow-x-auto">
-      <ul class="flex space-x-4 md:space-x-10 mt-5">
+      <ul class="flex space-x-3 md:space-x-4 mt-3">
         <li
           *ngFor="let cat of categories"
           (click)="selectCategory(cat)"
           [class]="
             selectedCategory === cat
-              ? 'px-4 md:px-6 py-2 cursor-pointer transition rounded-xl whitespace-nowrap bg-[#D4AF37] text-black font-semibold'
-              : 'px-4 md:px-6 py-2 cursor-pointer hover:bg-[#D4AF37] hover:text-black transition rounded-xl bg-[#5A534C] whitespace-nowrap'
+              ? 'px-3 md:px-4 py-1 cursor-pointer transition rounded-lg whitespace-nowrap bg-black text-white font-semibold text-xs md:text-sm'
+              : 'px-3 md:px-4 py-1 cursor-pointer hover:bg-gray-800 hover:text-white transition rounded-lg bg-white text-[#525252] whitespace-nowrap text-xs md:text-sm border border-gray-300'
           "
         >
           {{ cat }}
@@ -51,15 +53,15 @@
     </div>
 
     <!-- Brands -->
-    <div class="overflow-x-auto mt-4">
-      <ul class="flex space-x-4 md:space-x-10 mt-2">
+    <div class="overflow-x-auto mt-3">
+      <ul class="flex space-x-3 md:space-x-4 mt-2">
         <li
           *ngFor="let brand of brands"
           (click)="selectBrand(brand)"
           [class]="
             selectedBrand === brand
-              ? 'px-4 md:px-6 py-2 cursor-pointer transition rounded-xl whitespace-nowrap bg-[#D4AF37] text-black font-semibold'
-              : 'px-4 md:px-6 py-2 cursor-pointer hover:bg-[#D4AF37] hover:text-black transition rounded-xl bg-[#5A534C] whitespace-nowrap'
+              ? 'px-3 md:px-4 py-1 cursor-pointer transition rounded-lg whitespace-nowrap bg-black text-white font-semibold text-xs md:text-sm'
+              : 'px-3 md:px-4 py-1 cursor-pointer hover:bg-gray-800 hover:text-white transition rounded-lg bg-white text-[#525252] whitespace-nowrap text-xs md:text-sm border border-gray-300'
           "
         >
           {{ brand }}
@@ -68,15 +70,15 @@
     </div>
 
     <!-- Laptops Grid -->
-    <div class="flex justify-center mt-10">
-      <ul class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 w-full">
+    <div class="flex justify-center mt-8">
+      <ul class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 w-full">
         <li
           *ngFor="let book of laptops"
-          class="rounded-xl bg-[#3A322B] p-5 flex flex-col justify-between"
+          class="rounded-lg bg-gray-50 p-4 flex flex-col justify-between border border-gray-200"
         >
           <!-- Laptop Image -->
           <div
-            class="flex w-full h-80 md:h-96 items-center justify-center bg-[#2A2520] rounded-xl mb-3 overflow-hidden"
+            class="flex w-full h-56 md:h-64 items-center justify-center bg-gray-100 rounded-lg mb-3 overflow-hidden"
           >
             <img
               *ngIf="book.coverImage || book.image_url"
@@ -87,7 +89,7 @@
             />
             <span
               *ngIf="!book.coverImage && !book.image_url"
-              class="text-[#5A534C] text-lg"
+              class="text-gray-400 text-sm"
               >No Image</span
             >
           </div>
@@ -97,27 +99,29 @@
             class="flex flex-col md:flex-row justify-between items-start md:items-center mb-3 space-y-2 md:space-y-0 md:space-x-2"
           >
             <div class="flex flex-col space-y-1">
-              <div class="font-bold text-lg md:text-xl">
+              <div class="font-bold text-base md:text-lg text-gray-900">
                 {{ book.Brand }} {{ book.Model }}
               </div>
-              <div class="text-sm opacity-80">{{ book.Spec }}</div>
+              <div class="text-xs md:text-sm text-gray-600">
+                {{ book.Spec }}
+              </div>
               <div
-                class="mt-1 text-sm w-fit px-3 py-1 rounded-xl bg-[#D4AF37] text-black"
+                class="mt-1 text-xs w-fit px-2 py-0.5 rounded-md bg-orange-500 text-white"
               >
                 {{ book.category || book.genre }}
               </div>
             </div>
             <div
-              class="text-[#D4AF37] text-2xl md:text-3xl font-bold mt-2 md:mt-0"
+              class="text-orange-600 text-xl md:text-2xl font-bold mt-2 md:mt-0"
             >
-              {{ book.price }}$
+              ${{ book.price }}
             </div>
           </div>
 
           <!-- Book Description -->
           <div
             *ngIf="book.description"
-            class="text-sm opacity-70 mb-3 line-clamp-3"
+            class="text-xs md:text-sm text-gray-600 mb-3 line-clamp-3"
           >
             {{ book.description }}
           </div>
@@ -126,18 +130,18 @@
           <div
             class="flex flex-col sm:flex-row justify-between space-y-2 sm:space-y-0 sm:space-x-2"
           >
-            <div
-              class="flex-1 text-center p-3 rounded-xl bg-[#5A534C] text-white cursor-pointer hover:bg-[#D4AF37] hover:text-black transition"
+            <button
+              class="flex-1 text-center px-3 py-2 rounded-lg text-[#525252] cursor-pointer hover:bg-orange-500 hover:text-white transition border border-orange-500 text-xs md:text-sm font-medium"
               (click)="addToCart(book)"
             >
               Add to cart
-            </div>
-            <div
-              class="flex-1 text-center p-3 rounded-xl bg-[#D4AF37] text-black cursor-pointer hover:bg-[#5A534C] hover:text-white transition"
+            </button>
+            <button
+              class="flex-1 text-center px-3 py-2 rounded-lg text-white cursor-pointer bg-orange-500 hover:text-white transition text-xs md:text-sm font-medium border-orange-500 border"
               (click)="purchase(book)"
             >
               Purchase
-            </div>
+            </button>
           </div>
         </li>
       </ul>
@@ -145,9 +149,9 @@
   </section>
 
   <!-- Add-to-cart toast -->
-  <div *ngIf="toastVisible" class="fixed right-5 bottom-5 z-50">
+  <div *ngIf="toastVisible" class="fixed right-4 bottom-4 z-50">
     <div
-      class="px-4 py-2 rounded-xl bg-[#D4AF37] text-black font-semibold shadow-lg"
+      class="px-4 py-2 rounded-lg bg-orange-500 text-white font-semibold shadow-lg text-sm"
     >
       {{ toastMessage }}
     </div>

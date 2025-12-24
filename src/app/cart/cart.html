@@ -1,101 +1,175 @@
-<main class="bg-[#2A2520] min-h-screen p-5 md:p-10 text-white">
+<main class="bg-white h-full min-h-screen">
   <!-- Hero / Page Title -->
-  <section class="text-center mb-10">
-    <h1 class="text-3xl md:text-5xl font-bold text-[#D4AF37]">Your Cart</h1>
-    <div class="w-20 h-1 bg-[#D4AF37] rounded-full mx-auto mt-3"></div>
+  <section
+    class="text-gray-900 text-center p-6 md:p-8 border-b border-gray-300"
+  >
+    <h1 class="text-3xl md:text-4xl font-bold">Your Cart</h1>
+    <p class="text-gray-600 mt-2 text-sm md:text-base">
+      Review and manage your selected items
+    </p>
   </section>
 
-  <!-- Cart Items -->
-  <section class="space-y-6">
-    <div *ngIf="cart.items().length > 0; else emptyCart">
-      <ul class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-        <li
-          *ngFor="let item of cart.items()"
-          class="bg-[#3A322B] rounded-xl p-5 flex flex-col justify-between"
-        >
-          <!-- Book Logo / Image -->
-          <div
-            class="flex w-full h-80 md:h-96 items-center justify-center bg-[#2A2520] rounded-xl mb-3 overflow-hidden"
+  <!-- Main Cart Layout -->
+  <section class="p-6 md:p-8">
+    <div
+      *ngIf="cart.items().length > 0; else emptyCart"
+      class="grid grid-cols-1 lg:grid-cols-3 gap-8"
+    >
+      <!-- Left Side: Cart Items List -->
+      <div class="lg:col-span-2">
+        <h2 class="text-xl md:text-2xl font-semibold text-gray-900 mb-6">
+          Items in Cart
+        </h2>
+        <ul class="space-y-4">
+          <li
+            *ngFor="let item of cart.items()"
+            class="bg-gray-50 rounded-lg p-4 border border-gray-200 flex gap-4 items-start"
           >
-            <img
-              *ngIf="item.coverImage"
-              [src]="item.coverImage"
-              [alt]="item.title"
-              class="w-full h-full object-cover"
-              (error)="$event.target.src = ''"
-            />
-            <span *ngIf="!item.coverImage" class="text-[#5A534C] text-lg"
-              >No Cover</span
+            <!-- Item Image/Icon -->
+            <div
+              class="flex w-20 h-20 items-center justify-center bg-gray-100 rounded-lg shrink-0 overflow-hidden"
             >
-          </div>
+              <img
+                *ngIf="item.coverImage"
+                [src]="item.coverImage"
+                [alt]="item.title"
+                class="w-full h-full object-cover"
+                (error)="$event.target.src = ''"
+              />
+              <span
+                *ngIf="!item.coverImage"
+                class="text-gray-400 text-xs text-center"
+                >No Image</span
+              >
+            </div>
 
-          <!-- Book Info -->
-          <div
-            class="flex flex-col md:flex-row justify-between items-start md:items-center mb-3 space-y-2 md:space-y-0 md:space-x-2"
-          >
-            <div class="flex flex-col space-y-1">
-              <div class="font-bold text-lg md:text-xl">{{ item.title }}</div>
-              <div class="text-sm opacity-80">{{ item.author }}</div>
+            <!-- Item Details -->
+            <div class="flex-1">
+              <div class="font-bold text-base text-gray-900">
+                {{ item.title }}
+              </div>
+              <div class="text-sm text-gray-600">{{ item.author }}</div>
               <div
-                class="mt-1 text-sm w-fit px-3 py-1 rounded-xl bg-[#D4AF37] text-black"
+                class="mt-2 inline-block text-xs px-2 py-1 rounded-md bg-orange-500 text-white"
               >
                 {{ item.genre }}
               </div>
-              <div class="mt-1 text-sm">Quantity: {{ item.quantity }}</div>
+              <!-- Quantity Controls -->
+              <div
+                class="mt-2 flex items-center gap-2 bg-white border border-gray-300 rounded-lg w-fit"
+              >
+                <button
+                  class="px-3 py-2 text-gray-600 hover:bg-orange-500 hover:text-white transition font-bold"
+                  (click)="decreaseQuantity(item)"
+                >
+                  −
+                </button>
+                <span
+                  class="px-4 py-2 font-semibold text-gray-900 min-w-10 text-center"
+                >
+                  {{ item.quantity }}
+                </span>
+                <button
+                  class="px-3 py-2 text-gray-600 hover:bg-orange-500 hover:text-white transition font-bold"
+                  (click)="increaseQuantity(item)"
+                >
+                  +
+                </button>
+              </div>
             </div>
-            <div
-              class="text-[#D4AF37] text-2xl md:text-3xl font-bold mt-2 md:mt-0"
-            >
-              {{ item.price * item.quantity | currency : "USD" : true }}
+
+            <!-- Delete and Price -->
+            <div class="flex flex-col gap-3 items-end shrink-0">
+              <!-- Delete Button -->
+              <button
+                title="Delete item"
+                (click)="removeItem(item)"
+                class="text-gray-400 hover:text-red-700 transition p-2"
+              >
+                <lucide-angular [img]="Trash2" size="20"></lucide-angular>
+              </button>
+
+              <!-- Price -->
+              <div class="text-orange-600 font-bold text-lg">
+                {{ item.price | currency : "USD" : true }}
+              </div>
             </div>
-          </div>
+          </li>
+        </ul>
+      </div>
 
-          <!-- Actions -->
-          <div
-            class="flex flex-col sm:flex-row justify-between space-y-2 sm:space-y-0 sm:space-x-2"
-          >
-            <button
-              class="flex-1 text-center p-3 rounded-xl bg-[#5A534C] text-white cursor-pointer hover:bg-[#D4AF37] hover:text-black transition"
-              (click)="decreaseQuantity(item)"
-            >
-              -
-            </button>
-            <button
-              class="flex-1 text-center p-3 rounded-xl bg-[#D4AF37] text-black cursor-pointer hover:bg-[#5A534C] hover:text-white transition"
-              (click)="increaseQuantity(item)"
-            >
-              +
-            </button>
-            <button
-              class="flex-1 text-center p-3 rounded-xl bg-red-600 text-white cursor-pointer hover:bg-red-700 transition"
-              (click)="removeItem(item)"
-            >
-              Remove
-            </button>
-          </div>
-        </li>
-      </ul>
-
-      <!-- Total and Checkout -->
-      <div
-        class="mt-10 flex flex-col md:flex-row justify-between items-center bg-[#3A322B] rounded-xl p-5"
-      >
-        <div class="text-xl md:text-2xl font-bold">
-          Total: {{ getTotal() | currency : "USD" : true }}
-        </div>
-        <button
-          class="mt-3 md:mt-0 px-6 py-3 rounded-xl bg-[#D4AF37] text-black font-bold hover:bg-[#b7942f] transition"
-          (click)="checkout()"
+      <!-- Right Side: Order Summary -->
+      <div class="lg:col-span-1">
+        <div
+          class="border border-gray-200 text-[#525252] rounded-lg p-6 sticky top-8"
         >
-          Proceed to Checkout
-        </button>
+          <h2 class="text-xl md:text-2xl font-bold mb-6">Order Summary</h2>
+
+          <!-- Item Count -->
+          <div
+            class="flex justify-between mb-4 pb-4 border-b border-orange-400"
+          >
+            <span class="text-[#525252]">Items</span>
+            <span class="font-semibold">{{ cart.items().length }}</span>
+          </div>
+
+          <!-- Subtotal -->
+          <div
+            class="flex justify-between mb-4 pb-4 border-b border-orange-400"
+          >
+            <span class="text-[#525252]">Subtotal</span>
+            <span class="font-semibold">{{
+              getTotal() | currency : "USD" : true
+            }}</span>
+          </div>
+
+          <!-- Shipping (optional) -->
+          <div
+            class="flex justify-between mb-6 pb-6 border-b border-orange-400"
+          >
+            <span class="text-[#525252]">Shipping</span>
+            <span class="font-semibold">Free</span>
+          </div>
+
+          <!-- Total -->
+          <div class="flex justify-between mb-6 text-lg font-bold">
+            <span>Total</span>
+            <span>{{ getTotal() | currency : "USD" : true }}</span>
+          </div>
+
+          <!-- Checkout Button -->
+          <button
+            class="border-gray-500 border hover:text-white hover:bg-green-600 hover:border-white w-full px-6 py-3 rounded-lg text-[#525252] font-bold transition text-center"
+            (click)="checkout()"
+          >
+            Proceed to Checkout
+          </button>
+
+          <!-- Continue Shopping Link -->
+          <button
+            class="w-full mt-3 px-6 py-3 rounded-lg bg-transparent border border-gray-500 hover:border-white hover:text-white text-[#525252] font-semibold hover:bg-red-600 transition"
+            (click)="continueShopping()"
+          >
+            Continue Shopping
+          </button>
+        </div>
       </div>
     </div>
 
     <!-- Empty Cart -->
     <ng-template #emptyCart>
-      <div class="text-center text-xl md:text-2xl opacity-80">
-        Your cart is empty 😔
+      <div class="text-center py-12">
+        <div class="text-6xl mb-4">🛒</div>
+        <div class="text-2xl font-bold text-gray-900 mb-2">
+          Your cart is empty
+        </div>
+        <p class="text-gray-600 mb-6">Add some laptops to get started!</p>
+        <button
+          class="px-6 py-3 rounded-lg bg-orange-500 text-white font-semibold hover:bg-orange-600 transition"
+          (click)="continueShopping()"
+        >
+          Start Shopping
+        </button>
       </div>
     </ng-template>
   </section>

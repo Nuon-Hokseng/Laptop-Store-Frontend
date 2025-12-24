@@ -1,18 +1,20 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
+import { LucideAngularModule, Trash2 } from 'lucide-angular';
 import { CartService } from '../services/cart.service';
 
 @Component({
   selector: 'app-cart',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, LucideAngularModule],
   templateUrl: './cart.html',
   styleUrl: './cart.css',
 })
 export class Cart implements OnInit {
   cart = inject(CartService);
   private router = inject(Router);
+  readonly Trash2 = Trash2;
 
   ngOnInit() {
     // Sync cart with backend on page load
@@ -25,7 +27,12 @@ export class Cart implements OnInit {
   }
 
   decreaseQuantity(item: any) {
-    this.cart.decrease(item);
+    // If quantity is 1, remove the item when minus is clicked
+    if (item.quantity <= 1) {
+      this.removeItem(item);
+    } else {
+      this.cart.decrease(item);
+    }
   }
 
   removeItem(item: any) {
@@ -38,5 +45,9 @@ export class Cart implements OnInit {
 
   checkout() {
     this.router.navigate(['/payment']);
+  }
+
+  continueShopping() {
+    this.router.navigate(['/']);
   }
 }

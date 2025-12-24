@@ -1,265 +1,628 @@
-<div class="admin-container">
-  <header class="admin-header">
-    <h1>Admin Dashboard</h1>
-    <div class="right-actions">
-      <button class="logout-button" (click)="adminLogout()">Logout</button>
+<div class="min-h-screen bg-white">
+  <header
+    class="bg-white border-b border-gray-200 px-6 py-4 flex justify-between items-center"
+  >
+    <h1 class="text-2xl font-bold text-gray-900">Admin Dashboard</h1>
+    <div class="flex gap-2">
+      <button
+        class="px-4 py-2 rounded-lg bg-orange-500 text-white hover:bg-orange-600 transition text-sm font-medium"
+        (click)="adminLogout()"
+      >
+        Logout
+      </button>
     </div>
   </header>
 
   <!-- Tabs -->
-  <div class="tabs">
+  <div class="flex gap-4 border-b border-gray-200 px-6 py-4">
     <button
-      class="tab"
-      [class.active]="activeTab === 'laptops'"
+      class="pb-2 px-4 text-sm font-medium transition"
+      [class]="
+        activeTab === 'laptops'
+          ? 'text-orange-500 border-b-2 border-orange-500'
+          : 'text-gray-600 hover:text-gray-900'
+      "
       (click)="setTab('laptops')"
     >
       Laptops
     </button>
     <button
-      class="tab"
-      [class.active]="activeTab === 'orders'"
+      class="pb-2 px-4 text-sm font-medium transition"
+      [class]="
+        activeTab === 'orders'
+          ? 'text-orange-500 border-b-2 border-orange-500'
+          : 'text-gray-600 hover:text-gray-900'
+      "
       (click)="setTab('orders')"
     >
       Orders
     </button>
   </div>
 
-  <!-- Laptops Tab Content -->
-  <ng-container *ngIf="activeTab === 'laptops'">
-    <div class="actions-row">
-      <button class="add-button" (click)="toggleAddForm()">
-        {{ showAddForm ? "Cancel" : "+ Add New Laptop" }}
-      </button>
-    </div>
+  <div class="p-6">
+    <!-- Laptops Tab Content -->
+    <ng-container *ngIf="activeTab === 'laptops'">
+      <div class="mb-6 flex gap-2">
+        <button
+          class="px-4 py-2 rounded-lg bg-orange-500 text-white hover:bg-orange-600 transition text-sm font-medium"
+          (click)="toggleAddForm()"
+        >
+          {{ showAddForm ? "Cancel" : "+ Add New Laptop" }}
+        </button>
+        <button
+          class="px-4 py-2 rounded-lg bg-gray-600 text-white hover:bg-gray-700 transition text-sm font-medium"
+          (click)="toggleManageOptions()"
+        >
+          {{ showManageOptions() ? "Hide" : "Manage Brands & Categories" }}
+        </button>
+      </div>
 
-    <div *ngIf="showAddForm" class="add-form">
-      <h2>Add New Laptop</h2>
-      <form (ngSubmit)="addLaptop()">
-        <div class="form-row">
-          <div class="form-group">
-            <label for="brand">Brand *</label>
-            <input
-              type="text"
-              id="brand"
-              [(ngModel)]="newLaptop.Brand"
-              name="Brand"
-              required
-              placeholder="e.g., Apple"
-            />
-          </div>
-          <div class="form-group">
-            <label for="model">Model *</label>
-            <input
-              type="text"
-              id="model"
-              [(ngModel)]="newLaptop.Model"
-              name="Model"
-              required
-              placeholder="e.g., MacBook Air"
-            />
-          </div>
-        </div>
+      <!-- Manage Brands & Categories Section -->
+      <div
+        *ngIf="showManageOptions()"
+        class="bg-blue-50 border border-blue-200 rounded-lg p-6 mb-6"
+      >
+        <h2 class="text-lg font-bold text-gray-900 mb-4">
+          Manage Brands & Categories
+        </h2>
 
-        <div class="form-row">
-          <div class="form-group">
-            <label for="price">Price *</label>
-            <input
-              type="number"
-              id="price"
-              [(ngModel)]="newLaptop.price"
-              name="price"
-              required
-              min="0"
-              step="0.01"
-              placeholder="0.00"
-            />
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <!-- Manage Brands -->
+          <div>
+            <h3 class="text-sm font-semibold text-gray-700 mb-3">Brands</h3>
+            <div class="flex gap-2 mb-3">
+              <input
+                type="text"
+                [(ngModel)]="newBrandInput"
+                placeholder="New brand name"
+                class="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-orange-500 text-sm"
+                (keyup.enter)="addNewBrand()"
+              />
+              <button
+                type="button"
+                class="px-4 py-2 rounded-lg bg-orange-500 text-white hover:bg-orange-600 transition text-sm font-medium"
+                (click)="addNewBrand()"
+              >
+                Add
+              </button>
+            </div>
+            <div class="flex flex-wrap gap-2">
+              <span
+                *ngFor="let brand of brands()"
+                class="inline-flex items-center gap-1 px-3 py-1 bg-white border border-gray-300 rounded-lg text-sm"
+              >
+                {{ brand }}
+                <button
+                  type="button"
+                  class="text-red-500 hover:text-red-700 ml-1"
+                  (click)="removeBrand(brand)"
+                >
+                  ×
+                </button>
+              </span>
+            </div>
           </div>
-          <div class="form-group">
-            <label for="category">Category *</label>
-            <select
-              id="category"
-              [(ngModel)]="newLaptop.category"
-              name="category"
-              required
-            >
-              <option *ngFor="let cat of categories" [value]="cat">
+
+          <!-- Manage Categories -->
+          <div>
+            <h3 class="text-sm font-semibold text-gray-700 mb-3">Categories</h3>
+            <div class="flex gap-2 mb-3">
+              <input
+                type="text"
+                [(ngModel)]="newCategoryInput"
+                placeholder="New category name"
+                class="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-orange-500 text-sm"
+                (keyup.enter)="addNewCategory()"
+              />
+              <button
+                type="button"
+                class="px-4 py-2 rounded-lg bg-orange-500 text-white hover:bg-orange-600 transition text-sm font-medium"
+                (click)="addNewCategory()"
+              >
+                Add
+              </button>
+            </div>
+            <div class="flex flex-wrap gap-2">
+              <span
+                *ngFor="let cat of categories"
+                class="inline-flex items-center gap-1 px-3 py-1 bg-white border border-gray-300 rounded-lg text-sm"
+              >
                 {{ cat }}
-              </option>
-            </select>
+                <button
+                  type="button"
+                  class="text-red-500 hover:text-red-700 ml-1"
+                  (click)="removeCategory(cat)"
+                >
+                  ×
+                </button>
+              </span>
+            </div>
           </div>
         </div>
-
-        <div class="form-group">
-          <label for="spec">Spec *</label>
-          <input
-            type="text"
-            id="spec"
-            [(ngModel)]="newLaptop.Spec"
-            name="Spec"
-            required
-            placeholder="CPU / RAM / Storage / GPU"
-          />
-        </div>
-
-        <div class="form-group">
-          <label for="description">Description</label>
-          <textarea
-            id="description"
-            [(ngModel)]="newLaptop.description"
-            name="description"
-            rows="3"
-            placeholder="Enter laptop description"
-          ></textarea>
-        </div>
-
-        <div class="form-group">
-          <label for="coverImage">Image URL</label>
-          <input
-            type="url"
-            id="coverImage"
-            [(ngModel)]="newLaptop.image_url"
-            name="image_url"
-            placeholder="https://example.com/laptop.jpg"
-          />
-        </div>
-
-        <div class="form-actions">
-          <button type="submit" class="submit-button">Add Laptop</button>
-          <button type="button" class="cancel-button" (click)="resetForm()">
-            Reset
-          </button>
-        </div>
-      </form>
-    </div>
-
-    <div class="books-list">
-      <h2>All Laptops ({{ laptops().length }})</h2>
-
-      <!-- Loading State -->
-      <div *ngIf="loading()" class="loading-message">
-        <p>Loading laptops from database...</p>
       </div>
 
-      <!-- Error State -->
-      <div *ngIf="error()" class="error-message">
-        <p>{{ error() }}</p>
-        <button (click)="laptopService.fetchLaptops()">Retry</button>
-      </div>
-
-      <!-- Empty State -->
       <div
-        *ngIf="!loading() && !error() && laptops().length === 0"
-        class="empty-message"
+        *ngIf="showAddForm"
+        class="bg-gray-50 border border-gray-200 rounded-lg p-6 mb-6"
       >
-        <p>No laptops found. Add your first laptop using the button above!</p>
-      </div>
+        <h2 class="text-xl font-bold text-gray-900 mb-4">Add New Laptop</h2>
+        <form (ngSubmit)="addLaptop()">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+            <div>
+              <label
+                for="brand"
+                class="block text-sm font-medium text-gray-700 mb-1"
+                >Brand *</label
+              >
+              <select
+                id="brand"
+                [(ngModel)]="newLaptop.Brand"
+                name="Brand"
+                required
+                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-orange-500 text-sm"
+              >
+                <option value="" disabled>Select a brand</option>
+                <option *ngFor="let brand of brands()" [value]="brand">
+                  {{ brand }}
+                </option>
+              </select>
+            </div>
+            <div>
+              <label
+                for="model"
+                class="block text-sm font-medium text-gray-700 mb-1"
+                >Model *</label
+              >
+              <input
+                type="text"
+                id="model"
+                [(ngModel)]="newLaptop.Model"
+                name="Model"
+                required
+                placeholder="e.g., MacBook Air"
+                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-orange-500 text-sm"
+              />
+            </div>
+          </div>
 
-      <!-- Laptops Grid -->
-      <div *ngIf="!loading() && laptops().length > 0" class="books-grid">
-        <div *ngFor="let book of laptops()" class="book-card">
-          <div class="book-cover">
-            <img
-              *ngIf="book.image_url || book.coverImage"
-              [src]="book.image_url || book.coverImage"
-              [alt]="book.Brand + ' ' + book.Model"
-              class="cover-image"
-              (error)="$event.target.style.display = 'none'"
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+            <div>
+              <label
+                for="price"
+                class="block text-sm font-medium text-gray-700 mb-1"
+                >Price *</label
+              >
+              <input
+                type="number"
+                id="price"
+                [(ngModel)]="newLaptop.price"
+                name="price"
+                required
+                min="0"
+                step="0.01"
+                placeholder="0.00"
+                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-orange-500 text-sm"
+              />
+            </div>
+            <div>
+              <label
+                for="category"
+                class="block text-sm font-medium text-gray-700 mb-1"
+                >Category *</label
+              >
+              <select
+                id="category"
+                [(ngModel)]="newLaptop.category"
+                name="category"
+                required
+                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-orange-500 text-sm"
+              >
+                <option *ngFor="let cat of categories" [value]="cat">
+                  {{ cat }}
+                </option>
+              </select>
+            </div>
+          </div>
+
+          <div class="mb-4">
+            <label
+              for="spec"
+              class="block text-sm font-medium text-gray-700 mb-1"
+              >Spec *</label
+            >
+            <input
+              type="text"
+              id="spec"
+              [(ngModel)]="newLaptop.Spec"
+              name="Spec"
+              required
+              placeholder="CPU / RAM / Storage / GPU"
+              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-orange-500 text-sm"
             />
-            <div *ngIf="!book.image_url && !book.coverImage" class="no-cover">
-              No Image
-            </div>
           </div>
-          <div class="book-info">
-            <h3>{{ book.Brand }} {{ book.Model }}</h3>
-            <p class="author">{{ book.Spec }}</p>
-            <p class="genre">{{ book.category }}</p>
-            <p class="price">${{ book.price.toFixed(2) }}</p>
-            <p *ngIf="book.description" class="description">
-              {{ book.description }}
-            </p>
+
+          <div class="mb-4">
+            <label
+              for="description"
+              class="block text-sm font-medium text-gray-700 mb-1"
+              >Description</label
+            >
+            <textarea
+              id="description"
+              [(ngModel)]="newLaptop.description"
+              name="description"
+              rows="3"
+              placeholder="Enter laptop description"
+              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-orange-500 text-sm"
+            ></textarea>
           </div>
-          <button class="delete-button" (click)="deleteLaptop(book)">
-            Delete
+
+          <div class="mb-6">
+            <label
+              for="coverImage"
+              class="block text-sm font-medium text-gray-700 mb-1"
+              >Image URL</label
+            >
+            <input
+              type="url"
+              id="coverImage"
+              [(ngModel)]="newLaptop.image_url"
+              name="image_url"
+              placeholder="https://example.com/laptop.jpg"
+              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-orange-500 text-sm"
+            />
+          </div>
+
+          <div class="flex gap-2">
+            <button
+              type="submit"
+              class="px-4 py-2 rounded-lg bg-orange-500 text-white hover:bg-orange-600 transition text-sm font-medium"
+            >
+              Add Laptop
+            </button>
+            <button
+              type="button"
+              class="px-4 py-2 rounded-lg bg-gray-400 text-white hover:bg-gray-500 transition text-sm font-medium"
+              (click)="resetForm()"
+            >
+              Reset
+            </button>
+          </div>
+        </form>
+      </div>
+
+      <div>
+        <h2 class="text-xl font-bold text-gray-900 mb-4">
+          All Laptops ({{ laptops().length }})
+        </h2>
+
+        <!-- Loading State -->
+        <div
+          *ngIf="loading()"
+          class="p-4 bg-gray-50 rounded-lg text-gray-700 text-sm"
+        >
+          Loading laptops from database...
+        </div>
+
+        <!-- Error State -->
+        <div
+          *ngIf="error()"
+          class="p-4 bg-red-50 rounded-lg text-red-700 text-sm"
+        >
+          <p class="mb-2">{{ error() }}</p>
+          <button
+            class="px-4 py-2 rounded-lg bg-red-600 text-white hover:bg-red-700 transition text-sm font-medium"
+            (click)="laptopService.fetchLaptops()"
+          >
+            Retry
           </button>
         </div>
-      </div>
-    </div>
-  </ng-container>
 
-  <!-- Orders Tab Content -->
-  <ng-container *ngIf="activeTab === 'orders'">
-    <div class="orders-panel">
-      <h2>All Orders</h2>
+        <!-- Empty State -->
+        <div
+          *ngIf="!loading() && !error() && laptops().length === 0"
+          class="p-4 bg-gray-50 rounded-lg text-gray-600 text-sm"
+        >
+          No laptops found. Add your first laptop using the button above!
+        </div>
 
-      <div *ngIf="ordersLoading()" class="loading-message">
-        <p>Loading orders...</p>
-      </div>
+        <!-- Laptops Grid -->
+        <div *ngIf="!loading() && laptops().length > 0" class="space-y-3">
+          <div
+            *ngFor="let book of laptops()"
+            class="bg-gray-50 border border-gray-200 rounded-lg p-4"
+          >
+            <div class="flex gap-4 items-start">
+              <!-- Small Icon -->
+              <div
+                class="w-16 h-16 bg-white rounded-lg flex items-center justify-center shrink-0 overflow-hidden border border-gray-200"
+              >
+                <img
+                  *ngIf="book.image_url || book.coverImage"
+                  [src]="book.image_url || book.coverImage"
+                  [alt]="book.Brand + ' ' + book.Model"
+                  class="w-full h-full object-contain"
+                  (error)="$event.target.style.display = 'none'"
+                />
+                <div
+                  *ngIf="!book.image_url && !book.coverImage"
+                  class="text-gray-400 text-xs text-center"
+                >
+                  No Image
+                </div>
+              </div>
 
-      <div *ngIf="ordersError()" class="error-message">
-        <p>{{ ordersError() }}</p>
-        <button (click)="setTab('orders')">Retry</button>
-      </div>
+              <!-- Details (Editable) -->
+              <div class="flex-1 space-y-3">
+                <div *ngIf="editingId() !== book._id" class="space-y-2">
+                  <div class="flex justify-between items-start">
+                    <div>
+                      <h3 class="text-base font-bold text-gray-900">
+                        {{ book.Brand }} {{ book.Model }}
+                      </h3>
+                      <p class="text-sm text-gray-600">{{ book.Spec }}</p>
+                    </div>
+                    <div class="flex gap-2">
+                      <button
+                        class="p-2 rounded-lg bg-orange-500 text-white hover:bg-orange-600 transition"
+                        title="Edit"
+                        (click)="startEditing(book)"
+                      >
+                        <lucide-angular [img]="Edit" size="16"></lucide-angular>
+                      </button>
+                      <button
+                        class="p-2 rounded-lg bg-red-500 text-white hover:bg-red-600 transition"
+                        title="Delete"
+                        (click)="deleteLaptop(book)"
+                      >
+                        <lucide-angular
+                          [img]="Trash2"
+                          size="16"
+                        ></lucide-angular>
+                      </button>
+                    </div>
+                  </div>
+                  <div class="flex gap-4 text-sm text-gray-700">
+                    <div>
+                      <span class="font-medium">Price:</span>
+                      <span class="text-orange-600 font-bold ml-1"
+                        >${{ book.price.toFixed(2) }}</span
+                      >
+                    </div>
+                    <div>
+                      <span class="font-medium">Category:</span>
+                      <span class="ml-1">{{ book.category }}</span>
+                    </div>
+                  </div>
+                  <p *ngIf="book.description" class="text-sm text-gray-600">
+                    {{ book.description }}
+                  </p>
+                </div>
 
-      <div
-        *ngIf="!ordersLoading() && !ordersError() && orders().length === 0"
-        class="empty-message"
-      >
-        <p>No orders found.</p>
-      </div>
+                <!-- Edit Form -->
+                <div *ngIf="editingId() === book._id" class="space-y-3">
+                  <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    <div>
+                      <label
+                        class="block text-xs font-medium text-gray-700 mb-1"
+                        >Brand</label
+                      >
+                      <select
+                        [(ngModel)]="editForm.Brand"
+                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-orange-500 text-sm"
+                      >
+                        <option value="" disabled>Select a brand</option>
+                        <option *ngFor="let brand of brands()" [value]="brand">
+                          {{ brand }}
+                        </option>
+                      </select>
+                    </div>
+                    <div>
+                      <label
+                        class="block text-xs font-medium text-gray-700 mb-1"
+                        >Model</label
+                      >
+                      <input
+                        type="text"
+                        [(ngModel)]="editForm.Model"
+                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-orange-500 text-sm"
+                      />
+                    </div>
+                  </div>
 
-      <div *ngIf="!ordersLoading() && orders().length > 0" class="orders-list">
-        <div *ngFor="let order of orders()" class="order-card">
-          <div class="order-header">
-            <div class="order-header-left">
-              <div class="order-id">#{{ order._id }}</div>
-              <div class="order-date">
-                {{ order.createdAt | date : "medium" }}
+                  <div>
+                    <label class="block text-xs font-medium text-gray-700 mb-1"
+                      >Spec</label
+                    >
+                    <input
+                      type="text"
+                      [(ngModel)]="editForm.Spec"
+                      class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-orange-500 text-sm"
+                    />
+                  </div>
+
+                  <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    <div>
+                      <label
+                        class="block text-xs font-medium text-gray-700 mb-1"
+                        >Price</label
+                      >
+                      <input
+                        type="number"
+                        [(ngModel)]="editForm.price"
+                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-orange-500 text-sm"
+                      />
+                    </div>
+                    <div>
+                      <label
+                        class="block text-xs font-medium text-gray-700 mb-1"
+                        >Category</label
+                      >
+                      <select
+                        [(ngModel)]="editForm.category"
+                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-orange-500 text-sm"
+                      >
+                        <option *ngFor="let cat of categories" [value]="cat">
+                          {{ cat }}
+                        </option>
+                      </select>
+                    </div>
+                  </div>
+
+                  <div>
+                    <label class="block text-xs font-medium text-gray-700 mb-1"
+                      >Description</label
+                    >
+                    <textarea
+                      [(ngModel)]="editForm.description"
+                      rows="2"
+                      class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-orange-500 text-sm"
+                    ></textarea>
+                  </div>
+
+                  <div>
+                    <label class="block text-xs font-medium text-gray-700 mb-1"
+                      >Image URL</label
+                    >
+                    <input
+                      type="url"
+                      [(ngModel)]="editForm.image_url"
+                      class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-orange-500 text-sm"
+                    />
+                  </div>
+
+                  <div class="flex gap-2">
+                    <button
+                      class="px-4 py-2 rounded-lg bg-orange-500 text-white hover:bg-orange-600 transition text-sm font-medium"
+                      [disabled]="isSaving()"
+                      (click)="saveEdit()"
+                    >
+                      {{ isSaving() ? "Saving..." : "Save Changes" }}
+                    </button>
+                    <button
+                      class="px-4 py-2 rounded-lg bg-gray-400 text-white hover:bg-gray-500 transition text-sm font-medium"
+                      [disabled]="isSaving()"
+                      (click)="cancelEdit()"
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                </div>
               </div>
             </div>
-            <div class="order-header-right">
-              <div class="order-total">${{ order.totalPrice.toFixed(2) }}</div>
-            </div>
-          </div>
-
-          <div class="order-meta">
-            <div><strong>Name:</strong> {{ order.name }}</div>
-            <div><strong>Address:</strong> {{ order.shippingAddress }}</div>
-            <div *ngIf="order.orderNote">
-              <strong>Note:</strong> {{ order.orderNote }}
-            </div>
-          </div>
-
-          <div class="order-items">
-            <div class="order-item" *ngFor="let it of order.items">
-              <div class="item-title">{{ it.title }}</div>
-              <div class="item-qty">x{{ it.quantity }}</div>
-              <div class="item-price">
-                ${{ (it.price * it.quantity).toFixed(2) }}
-              </div>
-            </div>
-          </div>
-          <div class="order-status-row order-status-bottom">
-            <label for="status-{{ order._id }}"><strong>Status:</strong></label>
-            <select
-              id="status-{{ order._id }}"
-              class="status-select"
-              [class.pending]="(order.status || 'pending') === 'pending'"
-              [class.success]="order.status === 'success'"
-              [class.fail]="order.status === 'fail'"
-              [disabled]="savingOrderId() === order._id"
-              [ngModel]="order.status || 'pending'"
-              (ngModelChange)="onChangeStatus(order._id, $event)"
-            >
-              <option value="pending">pending</option>
-              <option value="success">success</option>
-              <option value="fail">fail</option>
-            </select>
-            <span *ngIf="savingOrderId() === order._id" class="saving-indicator"
-              >saving...</span
-            >
           </div>
         </div>
       </div>
-    </div>
-  </ng-container>
+    </ng-container>
+
+    <!-- Orders Tab Content -->
+    <ng-container *ngIf="activeTab === 'orders'">
+      <div>
+        <h2 class="text-xl font-bold text-gray-900 mb-4">All Orders</h2>
+
+        <div
+          *ngIf="ordersLoading()"
+          class="p-4 bg-gray-50 rounded-lg text-gray-700 text-sm"
+        >
+          Loading orders...
+        </div>
+
+        <div
+          *ngIf="ordersError()"
+          class="p-4 bg-red-50 rounded-lg text-red-700 text-sm"
+        >
+          <p class="mb-2">{{ ordersError() }}</p>
+          <button
+            class="px-4 py-2 rounded-lg bg-red-600 text-white hover:bg-red-700 transition text-sm font-medium"
+            (click)="setTab('orders')"
+          >
+            Retry
+          </button>
+        </div>
+
+        <div
+          *ngIf="!ordersLoading() && !ordersError() && orders().length === 0"
+          class="p-4 bg-gray-50 rounded-lg text-gray-600 text-sm"
+        >
+          No orders found.
+        </div>
+
+        <div *ngIf="!ordersLoading() && orders().length > 0" class="space-y-4">
+          <div
+            *ngFor="let order of orders()"
+            class="bg-gray-50 border border-gray-200 rounded-lg p-4"
+          >
+            <div
+              class="flex justify-between items-start mb-3 pb-3 border-b border-gray-200"
+            >
+              <div>
+                <div class="text-sm font-bold text-gray-900">
+                  #{{ order._id }}
+                </div>
+                <div class="text-xs text-gray-600 mt-1">
+                  {{ order.createdAt | date : "medium" }}
+                </div>
+              </div>
+              <div class="text-lg font-bold text-orange-600">
+                ${{ order.totalPrice.toFixed(2) }}
+              </div>
+            </div>
+
+            <div class="space-y-2 mb-3 text-xs text-gray-700">
+              <div><strong>Name:</strong> {{ order.name }}</div>
+              <div><strong>Address:</strong> {{ order.shippingAddress }}</div>
+              <div *ngIf="order.orderNote">
+                <strong>Note:</strong> {{ order.orderNote }}
+              </div>
+            </div>
+
+            <div class="bg-white rounded-lg p-2 mb-3 space-y-1">
+              <div
+                *ngFor="let it of order.items"
+                class="flex justify-between items-center text-xs text-gray-700"
+              >
+                <div class="flex-1">{{ it.title }}</div>
+                <div class="w-12 text-center">x{{ it.quantity }}</div>
+                <div class="w-20 text-right font-medium">
+                  ${{ (it.price * it.quantity).toFixed(2) }}
+                </div>
+              </div>
+            </div>
+
+            <div class="flex items-center gap-2">
+              <label
+                for="status-{{ order._id }}"
+                class="text-xs font-medium text-gray-700"
+                ><strong>Status:</strong></label
+              >
+              <select
+                id="status-{{ order._id }}"
+                class="px-2 py-1 border border-gray-300 rounded-lg text-xs focus:outline-none focus:border-orange-500"
+                [class]="
+                  (order.status || 'pending') === 'pending'
+                    ? 'bg-yellow-50 text-yellow-800'
+                    : order.status === 'success'
+                    ? 'bg-green-50 text-green-800'
+                    : 'bg-red-50 text-red-800'
+                "
+                [disabled]="savingOrderId() === order._id"
+                [ngModel]="order.status || 'pending'"
+                (ngModelChange)="onChangeStatus(order._id, $event)"
+              >
+                <option value="pending">pending</option>
+                <option value="success">success</option>
+                <option value="fail">fail</option>
+              </select>
+              <span
+                *ngIf="savingOrderId() === order._id"
+                class="text-xs text-gray-500 italic"
+              >
+                saving...
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </ng-container>
+  </div>
 </div>
