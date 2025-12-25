@@ -44,7 +44,7 @@ interface BackendCartItem {
 @Injectable({ providedIn: 'root' })
 export class CartService {
   private http = inject(HttpClient);
-  private apiUrl = 'http://localhost:3000/v1'; // API Gateway base URL
+  private apiUrl = 'https://api-gateway-bo9u.onrender.com/v1'; // API Gateway base URL
   private _items = signal<CartItem[]>([]);
   private useBackend = signal<boolean>(false); // Flag to enable backend sync
 

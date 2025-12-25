@@ -3,7 +3,7 @@ import { HttpClient } from '@angular/common/http';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
-  private API = 'http://localhost:3000/v1/auth'; // API Gateway
+  private API = 'https://api-gateway-bo9u.onrender.com/v1/auth'; // API Gateway (proxies to Auth Service)
 
   constructor(private http: HttpClient) {}
 

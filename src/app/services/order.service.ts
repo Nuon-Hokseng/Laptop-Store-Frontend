@@ -22,8 +22,7 @@ export interface Order {
 @Injectable({ providedIn: 'root' })
 export class OrderService {
   private http = inject(HttpClient);
-  private apiUrl = 'http://localhost:3000/v1/orders';
-  private adminApiUrl = 'http://localhost:3002/api/orders';
+  private apiUrl = 'https://api-gateway-bo9u.onrender.com/v1/orders';
 
   createOrder(orderData: any) {
     return this.http.post(this.apiUrl, orderData, { withCredentials: true });
@@ -35,12 +34,12 @@ export class OrderService {
 
   // Admin: fetch all orders (backend excludes payment fields)
   getAllOrders() {
-    return this.http.get<Order[]>(`${this.adminApiUrl}/all`);
+    return this.http.get<Order[]>(`${this.apiUrl}/all`);
   }
 
   // Admin: update order status
   updateOrderStatus(id: string, status: 'pending' | 'success' | 'fail') {
-    return this.http.patch<Order>(`${this.adminApiUrl}/${id}/status`, {
+    return this.http.patch<Order>(`${this.apiUrl}/${id}/status`, {
       status,
     });
   }

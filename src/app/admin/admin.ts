@@ -2,7 +2,12 @@ import { Component, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { LucideAngularModule, Edit, Trash2 } from 'lucide-angular';
-import { LaptopService, Laptop } from '../services/item.service';
+import {
+  LaptopService,
+  Laptop,
+  CategoryEntity,
+  CategoryType,
+} from '../services/item.service';
 import { AdminAuthService } from '../services/admin-auth.service';
 import { PopupService } from '../shared/popup.service';
 import { Router } from '@angular/router';
@@ -67,6 +72,10 @@ export class Admin {
 
   brands = signal<string[]>([]);
 
+  // Keep ids so deletes can hit MongoDB
+  private brandEntities = signal<CategoryEntity[]>([]);
+  private categoryEntities = signal<CategoryEntity[]>([]);
+
   // Manage categories and brands
   showManageOptions = signal<boolean>(false);
   newBrandInput = '';
@@ -80,45 +89,51 @@ export class Admin {
   }
 
   fetchBrandsAndCategories() {
-    // Fetch brands
-    this.laptopService.fetchBrands().subscribe({
-      next: (brands) => {
-        console.log('[Admin] Brands fetched from backend:', brands);
-        this.brands.set(brands || []);
-      },
-      error: (err) => {
-        console.error('[Admin] Failed to fetch brands:', err);
-        // Fallback to default brands if backend fails
-        this.brands.set([
-          'Apple',
-          'Dell',
-          'HP',
-          'Lenovo',
-          'Asus',
-          'Acer',
-          'MSI',
-          'Razer',
-          'Microsoft',
-        ]);
-      },
-    });
+    this.fetchCategoryType('brand');
+    this.fetchCategoryType('category');
+  }
 
-    // Fetch categories
-    this.laptopService.fetchCategories().subscribe({
-      next: (categories) => {
-        console.log('[Admin] Categories fetched from backend:', categories);
-        this.categories = categories || [
-          'Ultrabook',
-          'Gaming',
-          'Business',
-          '2-in-1',
-          'Creator',
-          'Modular',
-        ];
+  private fetchCategoryType(type: CategoryType) {
+    this.laptopService.fetchCategoryEntities(type).subscribe({
+      next: (entities) => {
+        const names = (entities || []).map((e) => e.name);
+        if (type === 'brand') {
+          console.log('[Admin] Brand entities fetched from backend:', entities);
+          this.brandEntities.set(entities || []);
+          this.brands.set(names);
+        } else {
+          console.log(
+            '[Admin] Category entities fetched from backend:',
+            entities
+          );
+          this.categoryEntities.set(entities || []);
+          this.categories = names.length
+            ? names
+            : [
+                'Ultrabook',
+                'Gaming',
+                'Business',
+                '2-in-1',
+                'Creator',
+                'Modular',
+              ];
+        }
       },
       error: (err) => {
-        console.error('[Admin] Failed to fetch categories:', err);
-        // Keep default categories if backend fails
+        console.error(`[Admin] Failed to fetch ${type}s:`, err);
+        if (type === 'brand') {
+          this.brands.set([
+            'Apple',
+            'Dell',
+            'HP',
+            'Lenovo',
+            'Asus',
+            'Acer',
+            'MSI',
+            'Razer',
+            'Microsoft',
+          ]);
+        }
       },
     });
   }
@@ -382,11 +397,33 @@ export class Admin {
       return;
     }
 
-    // For now, just update locally since we don't have a delete endpoint
-    this.brands.update((curr) => curr.filter((b) => b !== brand));
-    this.popup.show(`Brand "${brand}" removed (local only)`, {
-      type: 'success',
-      durationMs: 1500,
+    const entity = this.brandEntities().find((e) => e.name === brand);
+    if (!entity?._id) {
+      this.popup.show('Unable to delete: missing brand id', {
+        type: 'error',
+        durationMs: 2000,
+      });
+      return;
+    }
+
+    this.laptopService.deleteCategory(entity._id).subscribe({
+      next: () => {
+        this.brandEntities.update((curr) =>
+          curr.filter((e) => e._id !== entity._id)
+        );
+        this.brands.update((curr) => curr.filter((b) => b !== brand));
+        this.popup.show(`Brand "${brand}" deleted from database`, {
+          type: 'success',
+          durationMs: 1500,
+        });
+      },
+      error: (err) => {
+        console.error('[Admin] Failed to delete brand:', err);
+        this.popup.show('Failed to delete brand from database', {
+          type: 'error',
+          durationMs: 2000,
+        });
+      },
     });
   }
 
@@ -436,11 +473,33 @@ export class Admin {
       return;
     }
 
-    // For now, just update locally since we don't have a delete endpoint
-    this.categories = this.categories.filter((c) => c !== category);
-    this.popup.show(`Category "${category}" removed (local only)`, {
-      type: 'success',
-      durationMs: 1500,
+    const entity = this.categoryEntities().find((e) => e.name === category);
+    if (!entity?._id) {
+      this.popup.show('Unable to delete: missing category id', {
+        type: 'error',
+        durationMs: 2000,
+      });
+      return;
+    }
+
+    this.laptopService.deleteCategory(entity._id).subscribe({
+      next: () => {
+        this.categoryEntities.update((curr) =>
+          curr.filter((e) => e._id !== entity._id)
+        );
+        this.categories = this.categories.filter((c) => c !== category);
+        this.popup.show(`Category "${category}" deleted from database`, {
+          type: 'success',
+          durationMs: 1500,
+        });
+      },
+      error: (err) => {
+        console.error('[Admin] Failed to delete category:', err);
+        this.popup.show('Failed to delete category from database', {
+          type: 'error',
+          durationMs: 2000,
+        });
+      },
     });
   }
 }

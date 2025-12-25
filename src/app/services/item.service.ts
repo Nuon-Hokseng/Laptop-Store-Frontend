@@ -1,6 +1,14 @@
 import { Injectable, inject, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { map } from 'rxjs';
+import { map, switchMap } from 'rxjs';
+
+export type CategoryType = 'brand' | 'category';
+
+export interface CategoryEntity {
+  _id: string;
+  name: string;
+  type: CategoryType;
+}
 
 export interface Laptop {
   _id: string;
@@ -19,8 +27,8 @@ export interface Laptop {
 @Injectable({ providedIn: 'root' })
 export class LaptopService {
   private http = inject(HttpClient);
-  private apiUrl = 'http://localhost:3000/v1/laptops';
-  private categoryUrl = 'http://localhost:3000/v1/categories';
+  private apiUrl = 'https://api-gateway-bo9u.onrender.com/v1/laptops';
+  private categoryUrl = 'https://api-gateway-bo9u.onrender.com/v1/categories';
 
   laptops = signal<Laptop[]>([]);
   loading = signal<boolean>(false);
@@ -116,29 +124,29 @@ export class LaptopService {
       );
   }
 
+  // Fetch full category documents (includes _id) - needed for delete
+  fetchCategoryEntities(type?: CategoryType) {
+    const url = type
+      ? `${this.categoryUrl}?type=${encodeURIComponent(type)}`
+      : this.categoryUrl;
+    return this.http.get<CategoryEntity[]>(url);
+  }
+
   // Add a new brand
   addBrand(brand: string) {
     return this.http
-      .post<{ brands: string[] }>(`${this.categoryUrl}/brands`, { brand })
-      .pipe(
-        map((response) => {
-          this.brands.set(response.brands || []);
-          return response.brands;
-        })
-      );
+      .post(`${this.categoryUrl}`, { name: brand, type: 'brand' })
+      .pipe(switchMap(() => this.fetchBrands()));
   }
 
   // Add a new category
   addCategory(category: string) {
     return this.http
-      .post<{ categories: string[] }>(`${this.categoryUrl}/categories`, {
-        category,
-      })
-      .pipe(
-        map((response) => {
-          this.categories.set(response.categories || []);
-          return response.categories;
-        })
-      );
+      .post(`${this.categoryUrl}`, { name: category, type: 'category' })
+      .pipe(switchMap(() => this.fetchCategories()));
+  }
+
+  deleteCategory(id: string) {
+    return this.http.delete<{ message: string }>(`${this.categoryUrl}/${id}`);
   }
 }
