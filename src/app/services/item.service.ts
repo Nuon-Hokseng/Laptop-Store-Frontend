@@ -27,8 +27,8 @@ export interface Laptop {
 @Injectable({ providedIn: 'root' })
 export class LaptopService {
   private http = inject(HttpClient);
-  private apiUrl = 'https://api-gateway-bo9u.onrender.com/v1/laptops';
-  private categoryUrl = 'https://api-gateway-bo9u.onrender.com/v1/categories';
+  private apiUrl = 'https://gateway-e4dx.onrender.com/v1/laptops';
+  private categoryUrl = 'https://gateway-e4dx.onrender.com/v1/categories';
 
   laptops = signal<Laptop[]>([]);
   loading = signal<boolean>(false);

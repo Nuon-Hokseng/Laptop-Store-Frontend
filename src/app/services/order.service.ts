@@ -22,7 +22,7 @@ export interface Order {
 @Injectable({ providedIn: 'root' })
 export class OrderService {
   private http = inject(HttpClient);
-  private apiUrl = 'https://api-gateway-bo9u.onrender.com/v1/orders';
+  private apiUrl = 'https://gateway-e4dx.onrender.com/v1/orders';
 
   createOrder(orderData: any) {
     return this.http.post(this.apiUrl, orderData, { withCredentials: true });
