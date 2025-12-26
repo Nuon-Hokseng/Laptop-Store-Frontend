@@ -31,9 +31,15 @@ export class Payment implements OnInit {
   private router = inject(Router);
 
   ngOnInit() {
-    // Sync cart with backend on page load
-    console.log('[Payment] Syncing cart with backend on page load');
-    this.cart.fetchCart();
+    // Only sync from backend if cart is currently empty
+    // This avoids overwriting local items when backend has not synced yet.
+    console.log('[Payment] Checking cart before backend sync');
+    if (this.cart.items().length === 0) {
+      console.log('[Payment] Cart empty, syncing from backend');
+      this.cart.fetchCart();
+    } else {
+      console.log('[Payment] Cart has items, skipping backend sync');
+    }
   }
 
   get items() {
